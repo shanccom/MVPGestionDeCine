@@ -7,6 +7,15 @@
       "cantidad_entradas": 2,
       "total": 30.0,
       "fecha_venta": "2026-05-30T23:48:27",
+      "estado": "CANCELADA"
+    },
+    {
+      "id_venta": 2,
+      "pelicula": "Sin pelicula",
+      "funcion_id": 3,
+      "cantidad_entradas": 2,
+      "total": 30.0,
+      "fecha_venta": "2026-05-31T10:50:28",
       "estado": "ACTIVA"
     }
   ]

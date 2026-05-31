@@ -2,6 +2,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+import tkinter as tk
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -9,6 +10,7 @@ SRC = ROOT / "src"
 sys.path.append(str(SRC))
 
 from services.venta_service import VentaError, VentaService
+from ui.venta_ui import VentaUI
 
 
 class PruebasParticionEquivalenciaVentaEntradas(unittest.TestCase):
@@ -167,6 +169,24 @@ class PruebasValoresLimiteVentaEntradas(unittest.TestCase):
 
 		with self.assertRaises(VentaError):
 			self.modulo.vender_entradas("Hola", 1, 20, 1)
+
+
+class PruebasInterfazVentaEntradas(unittest.TestCase):
+	def test_funcion_id_se_autocompleta_con_pelicula(self):
+		root = tk.Tk()
+		root.withdraw()
+		tempdir = tempfile.TemporaryDirectory()
+		ruta = Path(tempdir.name) / "ventas.json"
+		service = VentaService(str(ruta))
+		ui = VentaUI(master=root, service=service)
+		try:
+			if ui._peliculas_disponibles:
+				ui._pelicula_var.set(ui._peliculas_disponibles[0])
+				ui._actualizar_funcion_auto()
+				self.assertEqual(ui._funcion_var.get(), "1")
+		finally:
+			ui._root.destroy()
+			tempdir.cleanup()
 
 
 if __name__ == "__main__":
