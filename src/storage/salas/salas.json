@@ -1,3 +1,22 @@
-{
-  "comentario": "Datos de salas"
-}
+[
+    {
+        "id_sala": 1,
+        "numero": 1,
+        "capacidad": 110
+    },
+    {
+        "id_sala": 2,
+        "numero": 2,
+        "capacidad": 45
+    },
+    {
+        "id_sala": 3,
+        "numero": 3,
+        "capacidad": 250
+    },
+    {
+        "id_sala": 4,
+        "numero": 50,
+        "capacidad": 300
+    }
+]
