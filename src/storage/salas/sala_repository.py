@@ -4,8 +4,12 @@ from typing import List, Optional
 from models.sala import Sala
 
 class SalaRepository:
-    def __init__(self, archivo_json: str = "data/salas.json") -> None:
-        self.archivo_json = archivo_json
+    def __init__(self, archivo_json: Optional[str] = None) -> None:
+        if archivo_json is None:
+            directorio_actual = os.path.dirname(os.path.abspath(__file__))
+            self.archivo_json = os.path.join(directorio_actual, "salas.json")
+        else:
+            self.archivo_json = archivo_json
         self._asegurar_archivo()
 
     def _asegurar_archivo(self) -> None:
