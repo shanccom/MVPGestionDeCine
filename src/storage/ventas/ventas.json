@@ -1,3 +1,13 @@
 {
-  "comentario": "Datos de ventas"
+  "comentario": "Datos de ventas",
+  "items": [
+    {
+      "id_venta": 1,
+      "funcion_id": 3,
+      "cantidad_entradas": 2,
+      "total": 30.0,
+      "fecha_venta": "2026-05-30T23:48:27",
+      "estado": "ACTIVA"
+    }
+  ]
 }
