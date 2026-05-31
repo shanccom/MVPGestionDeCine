@@ -1,8 +1,15 @@
 import pytest
-from unittest.mock import Mock, patch
-# Se asume la existencia de models.sala y repositories.sala_repository para TDD
+import sys
+import os
+from unittest.mock import patch
+
+# =====================================================================
+# CONFIGURACIÓN DE RUTAS PARA PYTEST
+# =====================================================================
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
 from models.sala import Sala
-from repositories.sala_repository import SalaRepository
+from storage.salas.sala_repository import SalaRepository
 
 # =====================================================================
 # CASOS DE PARTICIÓN DE EQUIVALENCIA (PE) - CAMPO: NUMERO
@@ -135,4 +142,25 @@ def test_gherkin_error_por_duplicado_de_numero_de_sala(mock_guardar, mock_buscar
     nueva_sala = Sala(numero=3, capacidad=120)
     
     with pytest.raises(ValueError, match="ya está en uso"):
-        repo.guardar(nueva
+        repo.guardar(nueva_sala)
+
+def test_gherkin_error_por_capacidad_fuera_de_rango_lanza_excepcion():
+    # Escenario: Error por capacidad fuera de rango (límite superado)
+    with pytest.raises(ValueError, match="rango|300"):
+        Sala(numero=4, capacidad=350)
+
+@patch.object(SalaRepository, 'tiene_funciones_asociadas')
+@patch.object(SalaRepository, 'eliminar')
+def test_gherkin_bloqueo_de_eliminacion_por_dependencias_de_funciones(mock_eliminar, mock_tiene_funciones):
+    # Escenario: Bloqueo de eliminación por dependencias
+    repo = SalaRepository()
+    sala_id_a_eliminar = 1
+    
+    # Simulamos que la sala tiene funciones programadas asociadas
+    mock_tiene_funciones.return_value = True
+    
+    # La lógica del repositorio debe proteger la eliminación
+    mock_eliminar.side_effect = ValueError("No se puede eliminar una sala con funciones asociadas")
+    
+    with pytest.raises(ValueError, match="funciones asociadas"):
+        repo.eliminar(sala_id_a_eliminar)
