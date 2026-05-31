@@ -9,6 +9,7 @@ class Venta:
 	id_venta: int | None
 	pelicula: str
 	funcion_id: int
+	asientos: tuple[int, ...]
 	cantidad_entradas: int
 	total: float
 	fecha_venta: datetime | None = None
@@ -22,7 +23,10 @@ class Venta:
 		self.id_venta = self._validar_id(self.id_venta)
 		self.pelicula = self._validar_texto(self.pelicula, "pelicula")
 		self.funcion_id = self._validar_id(self.funcion_id, nombre="funcion_id")
+		self.asientos = self._validar_asientos(self.asientos)
 		self.cantidad_entradas = self._validar_cantidad(self.cantidad_entradas)
+		if len(self.asientos) != self.cantidad_entradas:
+			raise ValueError("cantidad de entradas no coincide con los asientos seleccionados")
 		self.total = self._validar_total(self.total)
 		self.estado = self._validar_estado(self.estado)
 		if self.fecha_venta is None:
@@ -35,6 +39,7 @@ class Venta:
 			"id_venta": self.id_venta,
 			"pelicula": self.pelicula,
 			"funcion_id": self.funcion_id,
+			"asientos": list(self.asientos),
 			"cantidad_entradas": self.cantidad_entradas,
 			"total": self.total,
 			"fecha_venta": self.fecha_venta.isoformat(timespec="seconds"),
@@ -52,7 +57,8 @@ class Venta:
 			id_venta=data.get("id_venta"),
 			pelicula=data.get("pelicula", "Sin pelicula"),
 			funcion_id=data["funcion_id"],
-			cantidad_entradas=data["cantidad_entradas"],
+			asientos=tuple(data.get("asientos", [])),
+			cantidad_entradas=data.get("cantidad_entradas", len(data.get("asientos", []))),
 			total=data["total"],
 			fecha_venta=fecha,
 			estado=data.get("estado", "ACTIVA"),
@@ -74,6 +80,25 @@ class Venta:
 		if not valor:
 			raise ValueError(f"{nombre} requerido")
 		return valor
+
+	@staticmethod
+	def _validar_asientos(asientos):
+		if not isinstance(asientos, (list, tuple)):
+			raise ValueError("asientos invalidos")
+		if not asientos:
+			raise ValueError("asientos requeridos")
+		resultado = []
+		for asiento in asientos:
+			if not isinstance(asiento, int) or isinstance(asiento, bool):
+				raise ValueError("asientos invalidos")
+			if asiento < 1:
+				raise ValueError("asientos invalidos")
+			if asiento in resultado:
+				raise ValueError("asientos duplicados")
+			resultado.append(asiento)
+		if len(resultado) > 10:
+			raise ValueError("no se puede comprar mas de 10 asientos")
+		return tuple(resultado)
 
 	@classmethod
 	def _validar_cantidad(cls, valor):

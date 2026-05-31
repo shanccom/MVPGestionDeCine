@@ -14,13 +14,17 @@ class VentaService:
 	def __init__(self, ruta=None, repository=None):
 		self._repo = repository or VentaRepository(ruta)
 
-	def vender_entradas(self, pelicula, funcion_id, capacidad_sala, cantidad_entradas):
+	def vender_entradas(self, pelicula, funcion_id, capacidad_sala, asientos_seleccionados):
 		try:
 			self._validar_capacidad_sala(capacidad_sala)
+			if not isinstance(asientos_seleccionados, (list, tuple)):
+				raise VentaError("asientos invalidos")
+			cantidad_entradas = len(asientos_seleccionados)
 			venta = Venta(
 				id_venta=None,
 				pelicula=pelicula,
 				funcion_id=funcion_id,
+				asientos=tuple(asientos_seleccionados),
 				cantidad_entradas=cantidad_entradas,
 				total=round(cantidad_entradas * self.PRECIO_UNITARIO, 2),
 			)
@@ -41,6 +45,12 @@ class VentaService:
 
 	def listar_ventas(self, funcion_id=None):
 		return self._repo.listar(funcion_id)
+
+	def eliminar_venta(self, venta_id):
+		try:
+			return self._repo.eliminar(venta_id)
+		except ValueError as exc:
+			raise VentaError(str(exc)) from exc
 
 	def entradas_disponibles(self, funcion_id, capacidad_sala):
 		self._validar_capacidad_sala(capacidad_sala)

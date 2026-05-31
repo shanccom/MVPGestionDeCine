@@ -26,7 +26,9 @@ class VentaUI(ttk.Frame):
 		self._pelicula_var = tk.StringVar(value=self._peliculas_disponibles[0] if self._peliculas_disponibles else "")
 		self._funcion_var = tk.StringVar(value="1")
 		self._capacidad_var = tk.StringVar(value="100")
-		self._cantidad_var = tk.StringVar(value="1")
+		self._cantidad_var = tk.StringVar(value="0")
+		self._asientos_seleccionados = []
+		self._botones_asientos = []
 
 		form = ttk.LabelFrame(self, text="Datos de venta")
 		form.pack(fill="x", padx=5, pady=5)
@@ -52,15 +54,28 @@ class VentaUI(ttk.Frame):
 			row=2, column=1, sticky="w", padx=5, pady=5
 		)
 
-		tk.Label(form, text="Cantidad entradas").grid(row=3, column=0, sticky="w", padx=5, pady=5)
+		tk.Label(form, text="Asientos seleccionados").grid(row=3, column=0, sticky="nw", padx=5, pady=5)
+		asientos_frame = ttk.Frame(form)
+		asientos_frame.grid(row=3, column=1, sticky="w", padx=5, pady=5)
+		for indice in range(1, 11):
+			boton = ttk.Checkbutton(
+				asientos_frame,
+				text=f"A{indice}",
+				command=lambda asiento=indice: self._alternar_asiento(asiento),
+			)
+			boton.grid(row=(indice - 1) // 5, column=(indice - 1) % 5, sticky="w", padx=4, pady=2)
+			self._botones_asientos.append(boton)
+
+		tk.Label(form, text="Cantidad entradas").grid(row=4, column=0, sticky="w", padx=5, pady=5)
 		ttk.Entry(form, textvariable=self._cantidad_var, width=40).grid(
-			row=3, column=1, sticky="w", padx=5, pady=5
+			row=4, column=1, sticky="w", padx=5, pady=5
 		)
 
 		acciones = ttk.Frame(self)
 		acciones.pack(fill="x", padx=5, pady=5)
 
 		ttk.Button(acciones, text="Registrar", command=self._registrar).pack(side="left", padx=5)
+		tk.Button(acciones, text="Eliminar registro", command=self._eliminar_registro).pack(side="left", padx=5)
 		tk.Button(acciones, text="Cancelar seleccionada", command=self._cancelar).pack(side="left", padx=5)
 		ttk.Button(acciones, text="Listar", command=self._cargar_ventas).pack(side="left", padx=5)
 		ttk.Button(acciones, text="Limpiar", command=self._limpiar).pack(side="left", padx=5)
@@ -99,10 +114,20 @@ class VentaUI(ttk.Frame):
 				pelicula=self._pelicula_var.get(),
 				funcion_id=int(self._funcion_var.get()),
 				capacidad_sala=int(self._capacidad_var.get()),
-				cantidad_entradas=int(self._cantidad_var.get()),
+				asientos_seleccionados=tuple(self._asientos_seleccionados),
 			)
 			self._cargar_ventas()
 			messagebox.showinfo("Exito", "Venta registrada.")
+		except (ValueError, VentaError) as exc:
+			messagebox.showerror("Error", str(exc))
+
+	def _eliminar_registro(self):
+		try:
+			venta_id = self._venta_id_seleccionada()
+			self._service.eliminar_venta(venta_id)
+			self._cargar_ventas()
+			self._limpiar()
+			messagebox.showinfo("Exito", "Registro eliminado.")
 		except (ValueError, VentaError) as exc:
 			messagebox.showerror("Error", str(exc))
 
@@ -159,7 +184,11 @@ class VentaUI(ttk.Frame):
 	def _limpiar(self):
 		self._funcion_var.set("")
 		self._capacidad_var.set("100")
-		self._cantidad_var.set("1")
+		self._cantidad_var.set("0")
+		self._asientos_seleccionados = []
+		for boton in self._botones_asientos:
+			if hasattr(boton, "state"):
+				boton.state(["!selected"])
 		if self._peliculas_disponibles:
 			self._pelicula_var.set(self._peliculas_disponibles[0])
 		self._actualizar_funcion_auto()
@@ -172,6 +201,16 @@ class VentaUI(ttk.Frame):
 			self._funcion_var.set(str(self._peliculas_disponibles.index(pelicula) + 1))
 		else:
 			self._funcion_var.set("1")
+
+	def _alternar_asiento(self, asiento):
+		if asiento in self._asientos_seleccionados:
+			self._asientos_seleccionados.remove(asiento)
+		else:
+			if len(self._asientos_seleccionados) >= 10:
+				messagebox.showerror("Error", "No se puede comprar mas de 10 asientos.")
+				return
+			self._asientos_seleccionados.append(asiento)
+		self._cantidad_var.set(str(len(self._asientos_seleccionados)))
 
 	def _cargar_peliculas_disponibles(self):
 		ruta = Path(__file__).resolve().parents[1] / "storage" / "peliculas" / "peliculas.json"

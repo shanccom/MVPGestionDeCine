@@ -49,6 +49,15 @@ class VentaRepository:
                 return self._desde_dict(data)
         raise ValueError("venta no encontrada")
 
+    def eliminar(self, venta_id):
+        ventas = self._leer()
+        for indice, data in enumerate(ventas):
+            if data.get("id_venta") == venta_id:
+                eliminada = ventas.pop(indice)
+                self._escribir(ventas)
+                return self._desde_dict(eliminada)
+        raise ValueError("venta no encontrada")
+
     def total_entradas_activas(self, funcion_id):
         return sum(
             data["cantidad_entradas"]
