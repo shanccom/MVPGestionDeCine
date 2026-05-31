@@ -21,11 +21,11 @@ def test_pe_num_01_numero_entero_positivo_valido_acepta_creacion():
     assert sala.capacidad == 150
 
 def test_pe_num_02_numero_entero_negativo_lanza_value_error():
-    with pytest.raises(ValueError, match="no puede ser negativo|mayor a cero|invalido"):
+    with pytest.raises(ValueError, match="entre 1 y 50|invalido"):
         Sala(numero=-3, capacidad=150)
 
 def test_pe_num_03_numero_cero_lanza_value_error():
-    with pytest.raises(ValueError, match="no puede ser cero|mayor a cero|invalido"):
+    with pytest.raises(ValueError, match="entre 1 y 50|invalido"):
         Sala(numero=0, capacidad=150)
 
 def test_pe_num_04_numero_string_lanza_type_error():
@@ -39,6 +39,10 @@ def test_pe_num_05_numero_float_lanza_type_error():
 def test_pe_num_06_numero_none_lanza_type_error():
     with pytest.raises(TypeError, match="debe ser un numero entero"):
         Sala(numero=None, capacidad=150)
+
+def test_pe_num_07_numero_mayor_al_limite_lanza_value_error():
+    with pytest.raises(ValueError, match="entre 1 y 50"):
+        Sala(numero=51, capacidad=150)
 
 # =====================================================================
 # CASOS DE PARTICIÓN DE EQUIVALENCIA (PE) - CAMPO: CAPACIDAD
@@ -83,6 +87,14 @@ def test_avl_num_02_limite_inferior_exacto_valido_acepta_creacion():
 def test_avl_num_03_limite_inferior_superior_valido_acepta_creacion():
     sala = Sala(numero=2, capacidad=150)
     assert sala.numero == 2
+
+def test_avl_num_04_limite_superior_exacto_valido_acepta_creacion():
+    sala = Sala(numero=50, capacidad=150)
+    assert sala.numero == 50
+
+def test_avl_num_05_limite_superior_fuera_de_rango_lanza_value_error():
+    with pytest.raises(ValueError, match="entre 1 y 50"):
+        Sala(numero=51, capacidad=150)
 
 # =====================================================================
 # CASOS DE ANÁLISIS DE VALORES LÍMITE (AVL) - CAMPO: CAPACIDAD

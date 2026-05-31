@@ -5,6 +5,9 @@ class Sala:
     Modelo de dominio para Sala.
     Gestiona la validación estricta de tipos y reglas de negocio para el aforo físico.
     """
+    CAPACIDAD_MIN = 1
+    CAPACIDAD_MAX = 300
+    NUMERO_MAX = 50
 
     def __init__(
         self, 
@@ -13,7 +16,7 @@ class Sala:
         capacidad: int = 0
     ) -> None:
         
-        # 1. Validaciones de Tipo (TypeError) estricto (rechaza bool, float, str, None)
+        # 1. Validaciones de Tipo (TypeError)
         if type(numero) is not int:
             raise TypeError("El numero de sala debe ser un numero entero")
             
@@ -24,11 +27,12 @@ class Sala:
             raise TypeError("El id_sala debe ser un numero entero")
 
         # 2. Validaciones de Valores Límite (ValueError)
-        if numero <= 0:
-            raise ValueError("El numero de sala es invalido, no puede ser cero ni negativo, debe ser mayor a cero")
+        # <-- Lógica actualizada para el número de sala
+        if numero < 1 or numero > self.NUMERO_MAX:
+            raise ValueError(f"El numero de sala es invalido, debe estar entre 1 y {self.NUMERO_MAX}")
             
-        if capacidad < 1 or capacidad > 300:
-            raise ValueError("La capacidad de la sala debe estar en el rango entre 1 y 300")
+        if capacidad < self.CAPACIDAD_MIN or capacidad > self.CAPACIDAD_MAX:
+            raise ValueError(f"La capacidad de la sala debe estar en el rango entre {self.CAPACIDAD_MIN} y {self.CAPACIDAD_MAX}")
             
         if id_sala is not None and id_sala <= 0:
             raise ValueError("El id_sala debe ser mayor a cero")
