@@ -1,3 +1,21 @@
 {
-  "comentario": "Datos de funciones"
+  "comentario": "Datos de funciones",
+  "items": [
+    {
+      "id_funcion": 1,
+      "pelicula": 1,
+      "sala": 1,
+      "fecha": "2026-06-01",
+      "hora": "18:30",
+      "precio": 15.0
+    },
+    {
+      "id_funcion": 2,
+      "pelicula": 2,
+      "sala": 2,
+      "fecha": "2026-06-02",
+      "hora": "20:00",
+      "precio": 18.5
+    }
+  ]
 }

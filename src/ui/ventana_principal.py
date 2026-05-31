@@ -1,9 +1,10 @@
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import ttk
 
 from ui.pelicula_ui import PeliculaUI
 from ui.venta_ui import VentaUI
 from ui.sala_ui import SalaUI
+from ui.funcion_ui import FuncionUI
 
 
 class VentanaPrincipal(ttk.Frame):
@@ -30,7 +31,7 @@ class VentanaPrincipal(ttk.Frame):
         ttk.Button(botones, text="Salas", command=self._abrir_salas).grid(
             row=0, column=1, padx=5, pady=5, sticky="ew"
         )
-        ttk.Button(botones, text="Funciones", command=self._no_disponible).grid(
+        ttk.Button(botones, text="Funciones", command=self._abrir_funciones).grid(
             row=0, column=2, padx=5, pady=5, sticky="ew"
         )
         ttk.Button(botones, text="Ventas", command=self._abrir_ventas).grid(
@@ -54,8 +55,9 @@ class VentanaPrincipal(ttk.Frame):
         ventana = tk.Toplevel(self._root)
         SalaUI(master=ventana)
 
-    def _no_disponible(self):
-        messagebox.showinfo("Modulo no disponible", "Este modulo aun no esta implementado.")
+    def _abrir_funciones(self):
+        ventana = tk.Toplevel(self._root)
+        FuncionUI(master=ventana)
 
 
 def lanzar_aplicacion():
