@@ -2,7 +2,11 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 
 from ui.pelicula_ui import PeliculaUI
+<<<<<<< HEAD
 from ui.venta_ui import VentaUI
+=======
+from ui.sala_ui import SalaUI
+>>>>>>> origin/main
 
 
 class VentanaPrincipal(ttk.Frame):
@@ -26,7 +30,7 @@ class VentanaPrincipal(ttk.Frame):
         ttk.Button(botones, text="Peliculas", command=self._abrir_peliculas).grid(
             row=0, column=0, padx=5, pady=5, sticky="ew"
         )
-        ttk.Button(botones, text="Salas", command=self._no_disponible).grid(
+        ttk.Button(botones, text="Salas", command=self._abrir_salas).grid(
             row=0, column=1, padx=5, pady=5, sticky="ew"
         )
         ttk.Button(botones, text="Funciones", command=self._no_disponible).grid(
@@ -45,9 +49,15 @@ class VentanaPrincipal(ttk.Frame):
         ventana = tk.Toplevel(self._root)
         PeliculaUI(master=ventana)
 
+<<<<<<< HEAD
     def _abrir_ventas(self):
         ventana = tk.Toplevel(self._root)
         VentaUI(master=ventana)
+=======
+    def _abrir_salas(self):
+        ventana = tk.Toplevel(self._root)
+        SalaUI(master=ventana)
+>>>>>>> origin/main
 
     def _no_disponible(self):
         messagebox.showinfo("Modulo no disponible", "Este modulo aun no esta implementado.")

@@ -13,13 +13,24 @@ class Pelicula:
     }
     TITULO_MIN = 1
     TITULO_MAX = 100
-    DURACION_MIN = 1
-    DURACION_MAX = 300
+    DURACION_MIN = 60
+    DURACION_MAX = 240
 
-    def __init__(self, titulo, genero, duracion):
+    def __init__(self, titulo, genero, duracion, id_pelicula=None):
+        self.id_pelicula = (
+            self._validar_id(id_pelicula) if id_pelicula is not None else None
+        )
         self.titulo = self._validar_titulo(titulo)
         self.genero = self._validar_genero(genero)
         self.duracion = self._validar_duracion(duracion)
+
+    def asignar_id(self, id_pelicula):
+        if self.id_pelicula is not None:
+            raise ValueError("id_pelicula ya asignado")
+        self.id_pelicula = self._validar_id(id_pelicula)
+
+    def obtener_id(self):
+        return self.id_pelicula
 
     @classmethod
     def normalizar_titulo(cls, titulo):
@@ -59,3 +70,11 @@ class Pelicula:
         if duracion < cls.DURACION_MIN or duracion > cls.DURACION_MAX:
             raise ValueError("duracion fuera de rango")
         return duracion
+
+    @staticmethod
+    def _validar_id(id_pelicula):
+        if not isinstance(id_pelicula, int) or isinstance(id_pelicula, bool):
+            raise ValueError("id_pelicula invalido")
+        if id_pelicula <= 0:
+            raise ValueError("id_pelicula invalido")
+        return id_pelicula

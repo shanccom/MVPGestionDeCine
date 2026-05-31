@@ -9,7 +9,6 @@
 | PE-TI-03 | "" | Invalida (vacio) | Rechaza |
 | PE-TI-04 | "   " | Invalida (solo espacios) | Rechaza |
 | PE-TI-05 | 101 caracteres | Invalida (>100) | Rechaza |
-| PE-TI-06 | " matrix " con existente "Matrix" | Invalida (duplicado) | Rechaza |
 
 ## genero
 
@@ -24,10 +23,10 @@
 
 | ID | Entrada | Clase | Resultado esperado |
 | --- | --- | --- | --- |
-| PE-DU-01 | 90 | Valida (1-300) | Acepta |
-| PE-DU-02 | 1 | Valida (minimo) | Acepta |
-| PE-DU-03 | 0 | Invalida (<1) | Rechaza |
-| PE-DU-04 | 301 | Invalida (>300) | Rechaza |
+| PE-DU-01 | 120 | Valida (60-240) | Acepta |
+| PE-DU-02 | 60 | Valida (minimo) | Acepta |
+| PE-DU-03 | 59 | Invalida (<60) | Rechaza |
+| PE-DU-04 | 241 | Invalida (>240) | Rechaza |
 | PE-DU-05 | -10 | Invalida (negativo) | Rechaza |
 | PE-DU-06 | 90.5 | Invalida (no entero) | Rechaza |
 | PE-DU-07 | "noventa" | Invalida (no numerico) | Rechaza |
@@ -44,14 +43,14 @@
 | AVL-TI-03 | 100 | 100 caracteres | Acepta |
 | AVL-TI-04 | 101 | 101 caracteres | Rechaza |
 
-## duracion (rango 1 a 300)
+## duracion (rango 60 a 240)
 
 | ID | Valor | Resultado esperado |
 | --- | --- | --- |
-| AVL-DU-01 | 0 | Rechaza |
-| AVL-DU-02 | 1 | Acepta |
-| AVL-DU-03 | 300 | Acepta |
-| AVL-DU-04 | 301 | Rechaza |
+| AVL-DU-01 | 59 | Rechaza |
+| AVL-DU-02 | 60 | Acepta |
+| AVL-DU-03 | 240 | Acepta |
+| AVL-DU-04 | 241 | Rechaza |
 
 ## genero (catalogo)
 

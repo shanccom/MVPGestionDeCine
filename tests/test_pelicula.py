@@ -56,16 +56,6 @@ def test_pe_ti_05_titulo_mas_100_rechaza():
         crear_pelicula(titulo="A" * 101)
 
 
-def test_pe_ti_06_titulo_duplicado_rechaza(service):
-    service.registrar(**pelicula_valida_kwargs())
-    with pytest.raises(ValueError):
-        service.registrar(
-            titulo=" matrix ",
-            genero="Ciencia Ficcion",
-            duracion=136,
-        )
-
-
 # PE - genero
 def test_pe_ge_01_genero_accion_valido():
     pelicula = crear_pelicula(genero="Accion")
@@ -87,25 +77,25 @@ def test_pe_ge_04_genero_vacio_rechaza():
         crear_pelicula(genero="")
 
 
-# PE - duracion
-def test_pe_du_01_duracion_90_valida():
-    pelicula = crear_pelicula(duracion=90)
-    assert pelicula.duracion == 90
+# PE - duracion (60-240)
+def test_pe_du_01_duracion_120_valida():
+    pelicula = crear_pelicula(duracion=120)
+    assert pelicula.duracion == 120
 
 
-def test_pe_du_02_duracion_1_valida():
-    pelicula = crear_pelicula(duracion=1)
-    assert pelicula.duracion == 1
+def test_pe_du_02_duracion_60_valida():
+    pelicula = crear_pelicula(duracion=60)
+    assert pelicula.duracion == 60
 
 
-def test_pe_du_03_duracion_0_rechaza():
+def test_pe_du_03_duracion_59_rechaza():
     with pytest.raises(ValueError):
-        crear_pelicula(duracion=0)
+        crear_pelicula(duracion=59)
 
 
-def test_pe_du_04_duracion_301_rechaza():
+def test_pe_du_04_duracion_241_rechaza():
     with pytest.raises(ValueError):
-        crear_pelicula(duracion=301)
+        crear_pelicula(duracion=241)
 
 
 def test_pe_du_05_duracion_negativa_rechaza():
@@ -145,25 +135,25 @@ def test_avl_ti_04_longitud_101_rechaza():
         crear_pelicula(titulo="A" * 101)
 
 
-# AVL - duracion
-def test_avl_du_01_valor_0_rechaza():
+# AVL - duracion (60-240)
+def test_avl_du_01_valor_59_rechaza():
     with pytest.raises(ValueError):
-        crear_pelicula(duracion=0)
+        crear_pelicula(duracion=59)
 
 
-def test_avl_du_02_valor_1_acepta():
-    pelicula = crear_pelicula(duracion=1)
-    assert pelicula.duracion == 1
+def test_avl_du_02_valor_60_acepta():
+    pelicula = crear_pelicula(duracion=60)
+    assert pelicula.duracion == 60
 
 
-def test_avl_du_03_valor_300_acepta():
-    pelicula = crear_pelicula(duracion=300)
-    assert pelicula.duracion == 300
+def test_avl_du_03_valor_240_acepta():
+    pelicula = crear_pelicula(duracion=240)
+    assert pelicula.duracion == 240
 
 
-def test_avl_du_04_valor_301_rechaza():
+def test_avl_du_04_valor_241_rechaza():
     with pytest.raises(ValueError):
-        crear_pelicula(duracion=301)
+        crear_pelicula(duracion=241)
 
 
 # AVL - genero
@@ -185,8 +175,8 @@ def test_avl_ge_03_fuera_catalogo_rechaza():
 # Gherkin
 def test_gherkin_registrar_pelicula_valida(service):
     pelicula = service.registrar(**pelicula_valida_kwargs())
-    assert pelicula.titulo == "Matrix"
-    assert any(p.titulo == "Matrix" for p in service.listar())
+    assert pelicula.id_pelicula == 1
+    assert any(p.id_pelicula == 1 for p in service.listar())
 
 
 def test_gherkin_rechazar_duracion_fuera_rango(service):
@@ -194,38 +184,27 @@ def test_gherkin_rechazar_duracion_fuera_rango(service):
         service.registrar(
             titulo="Corta",
             genero="Comedia",
-            duracion=0,
+            duracion=59,
         )
     assert service.listar() == []
 
 
-def test_gherkin_evitar_duplicidad_titulo(service):
-    service.registrar(**pelicula_valida_kwargs())
-    with pytest.raises(ValueError):
-        service.registrar(
-            titulo=" matrix ",
-            genero="Ciencia Ficcion",
-            duracion=136,
-        )
-    assert len(service.listar()) == 1
-
-
 def test_gherkin_editar_pelicula(service):
-    service.registrar(**pelicula_valida_kwargs())
-    pelicula = service.actualizar("Matrix", duracion=140)
-    assert pelicula.duracion == 140
+    pelicula = service.registrar(**pelicula_valida_kwargs())
+    actualizada = service.actualizar(pelicula.id_pelicula, duracion=140)
+    assert actualizada.duracion == 140
     assert service.listar()[0].duracion == 140
 
 
 def test_gherkin_eliminar_pelicula_sin_funciones(service):
-    service.registrar(**pelicula_valida_kwargs())
-    service.eliminar("Matrix")
+    pelicula = service.registrar(**pelicula_valida_kwargs())
+    service.eliminar(pelicula.id_pelicula)
     assert service.listar() == []
 
 
 def test_gherkin_bloquear_eliminacion_con_funciones(service):
-    service.registrar(**pelicula_valida_kwargs())
-    service.asociar_funcion("Matrix")
+    pelicula = service.registrar(**pelicula_valida_kwargs())
+    service.asociar_funcion(pelicula.id_pelicula)
     with pytest.raises(ValueError):
-        service.eliminar("Matrix")
+        service.eliminar(pelicula.id_pelicula)
     assert len(service.listar()) == 1

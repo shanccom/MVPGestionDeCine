@@ -3,6 +3,7 @@ Actúa como Analista de Requisitos y QA.
 Genera la documentación completa para el módulo Película de un Sistema de Gestión de Cine.
 
 Campos:
+- id_pelicula
 - titulo
 - genero
 - duracion
