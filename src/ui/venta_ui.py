@@ -110,9 +110,10 @@ class VentaUI(ttk.Frame):
 			)
 			self._limpiar_seleccion_asientos()
 			self._cargar_ventas()
-			messagebox.showinfo("Exito", "Venta registrada.")
+			messagebox.showinfo("Exito", "Venta registrada.", parent=self._root)
+			self._mantener_ventana_activa()
 		except (ValueError, VentaError) as exc:
-			messagebox.showerror("Error", str(exc))
+			messagebox.showerror("Error", str(exc), parent=self._root)
 
 	def _eliminar_registro(self):
 		try:
@@ -201,6 +202,11 @@ class VentaUI(ttk.Frame):
 		self._cantidad_var.set("0")
 		self._asientos_seleccionados = []
 		self._asientos_var.set("Sin asientos seleccionados")
+
+	def _mantener_ventana_activa(self):
+		self._root.deiconify()
+		self._root.lift()
+		self._root.focus_force()
 
 	def _actualizar_funcion_auto(self, _event=None):
 		pelicula = self._pelicula_var.get()

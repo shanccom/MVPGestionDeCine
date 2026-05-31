@@ -6,6 +6,12 @@
       "titulo": "Hola 123",
       "genero": "Accion",
       "duracion": 120
+    },
+    {
+      "id_pelicula": 2,
+      "titulo": "Toy Story",
+      "genero": "Animacion",
+      "duracion": 120
     }
   ]
 }
