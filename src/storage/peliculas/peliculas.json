@@ -2,7 +2,8 @@
   "comentario": "Datos de peliculas",
   "items": [
     {
-      "titulo": "Hola",
+      "id_pelicula": 1,
+      "titulo": "Hola 123",
       "genero": "Accion",
       "duracion": 120
     }

@@ -18,6 +18,7 @@ class PeliculaUI(ttk.Frame):
         self._root.title("Gestion de peliculas")
         self.pack(fill="both", expand=True, padx=10, pady=10)
 
+        self._id_var = tk.StringVar()
         self._titulo_var = tk.StringVar()
         self._genero_var = tk.StringVar()
         self._duracion_var = tk.StringVar()
@@ -25,12 +26,17 @@ class PeliculaUI(ttk.Frame):
         form = ttk.LabelFrame(self, text="Datos de pelicula")
         form.pack(fill="x", padx=5, pady=5)
 
-        ttk.Label(form, text="Titulo").grid(row=0, column=0, sticky="w", padx=5, pady=5)
-        ttk.Entry(form, textvariable=self._titulo_var, width=40).grid(
+        ttk.Label(form, text="ID").grid(row=0, column=0, sticky="w", padx=5, pady=5)
+        ttk.Entry(form, textvariable=self._id_var, width=40, state="readonly").grid(
             row=0, column=1, sticky="w", padx=5, pady=5
         )
 
-        ttk.Label(form, text="Genero").grid(row=1, column=0, sticky="w", padx=5, pady=5)
+        ttk.Label(form, text="Titulo").grid(row=1, column=0, sticky="w", padx=5, pady=5)
+        ttk.Entry(form, textvariable=self._titulo_var, width=40).grid(
+            row=1, column=1, sticky="w", padx=5, pady=5
+        )
+
+        ttk.Label(form, text="Genero").grid(row=2, column=0, sticky="w", padx=5, pady=5)
         self._genero_combo = ttk.Combobox(
             form,
             textvariable=self._genero_var,
@@ -38,11 +44,11 @@ class PeliculaUI(ttk.Frame):
             state="readonly",
             width=37,
         )
-        self._genero_combo.grid(row=1, column=1, sticky="w", padx=5, pady=5)
+        self._genero_combo.grid(row=2, column=1, sticky="w", padx=5, pady=5)
 
-        ttk.Label(form, text="Duracion (min)").grid(row=2, column=0, sticky="w", padx=5, pady=5)
+        ttk.Label(form, text="Duracion (min)").grid(row=3, column=0, sticky="w", padx=5, pady=5)
         ttk.Entry(form, textvariable=self._duracion_var, width=40).grid(
-            row=2, column=1, sticky="w", padx=5, pady=5
+            row=3, column=1, sticky="w", padx=5, pady=5
         )
 
         acciones = ttk.Frame(self)
@@ -65,14 +71,16 @@ class PeliculaUI(ttk.Frame):
         tabla_frame = ttk.LabelFrame(self, text="Peliculas")
         tabla_frame.pack(fill="both", expand=True, padx=5, pady=5)
 
-        columnas = ("titulo", "genero", "duracion")
+        columnas = ("id_pelicula", "titulo", "genero", "duracion")
         self._tabla = ttk.Treeview(
             tabla_frame, columns=columnas, show="headings", height=12
         )
+        self._tabla.heading("id_pelicula", text="ID")
         self._tabla.heading("titulo", text="Titulo")
         self._tabla.heading("genero", text="Genero")
         self._tabla.heading("duracion", text="Duracion")
-        self._tabla.column("titulo", width=220)
+        self._tabla.column("id_pelicula", width=70, anchor="center")
+        self._tabla.column("titulo", width=200)
         self._tabla.column("genero", width=140)
         self._tabla.column("duracion", width=90, anchor="center")
         self._tabla.pack(side="left", fill="both", expand=True)
@@ -99,6 +107,7 @@ class PeliculaUI(ttk.Frame):
             self._repo.guardar(pelicula)
             self._cargar_peliculas()
             self._limpiar()
+            self._id_var.set(str(pelicula.id_pelicula))
             messagebox.showinfo("Exito", "Pelicula registrada.")
         except ValueError as exc:
             messagebox.showerror("Error", str(exc))
@@ -110,12 +119,13 @@ class PeliculaUI(ttk.Frame):
         try:
             pelicula = self._repo.actualizar(
                 self._titulo_seleccionado,
-                titulo_nuevo=self._titulo_var.get(),
+                titulo=self._titulo_var.get(),
                 genero=self._genero_var.get(),
                 duracion=self._leer_duracion(),
             )
             self._cargar_peliculas()
-            self._titulo_seleccionado = pelicula.titulo
+            self._titulo_seleccionado = pelicula.id_pelicula
+            self._id_var.set(str(pelicula.id_pelicula))
             messagebox.showinfo("Exito", "Pelicula actualizada.")
         except ValueError as exc:
             messagebox.showerror("Error", str(exc))
@@ -141,6 +151,7 @@ class PeliculaUI(ttk.Frame):
             self._tabla.insert(
                 "", "end",
                 values=(
+                    pelicula.id_pelicula,
                     pelicula.titulo,
                     pelicula.genero,
                     pelicula.duracion,
@@ -154,12 +165,14 @@ class PeliculaUI(ttk.Frame):
         valores = self._tabla.item(seleccion[0], "values")
         if not valores:
             return
-        self._titulo_var.set(valores[0])
-        self._genero_var.set(valores[1])
-        self._duracion_var.set(valores[2])
-        self._titulo_seleccionado = valores[0]
+        self._id_var.set(valores[0])
+        self._titulo_var.set(valores[1])
+        self._genero_var.set(valores[2])
+        self._duracion_var.set(valores[3])
+        self._titulo_seleccionado = int(valores[0])
 
     def _limpiar(self):
+        self._id_var.set("")
         self._titulo_var.set("")
         self._genero_var.set("")
         self._duracion_var.set("")
