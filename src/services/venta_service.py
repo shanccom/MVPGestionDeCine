@@ -61,9 +61,6 @@ class VentaService:
 	def asientos_ocupados(self, funcion_id):
 		return self._repo.asientos_ocupados(funcion_id)
 
-	def limpiar_compras(self):
-		return self._repo.limpiar()
-
 	def eliminar_venta(self, venta_id):
 		try:
 			return self._repo.eliminar(venta_id)

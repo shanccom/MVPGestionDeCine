@@ -105,14 +105,6 @@ class PruebasParticionEquivalenciaVentaEntradas(unittest.TestCase):
 		self.assertEqual(len(ventas_hola), 1)
 		self.assertEqual(ventas_hola[0].pelicula, "Hola")
 
-	def test_limpiar_compras_borra_todos_los_registros(self):
-		self.modulo.vender_entradas("Hola", 1, (1, 2, 3))
-		self.modulo.vender_entradas("Otra", 2, (4, 5))
-
-		borradas = self.modulo.limpiar_compras()
-		self.assertEqual(len(borradas), 2)
-		self.assertEqual(self.modulo.listar_ventas(), [])
-
 	def test_id_venta_autoincrementa_desde_uno(self):
 		primera = self.modulo.vender_entradas("Hola", 1, (1,))
 		segunda = self.modulo.vender_entradas("Hola", 2, (2,))

@@ -102,7 +102,7 @@ class VentaUI(ttk.Frame):
 			funcion_id = int(self._funcion_var.get())
 			asientos_seleccionados = tuple(self._asientos_seleccionados)
 
-			venta = self._service.vender_entradas(
+			self._service.vender_entradas(
 				pelicula=pelicula,
 				funcion_id=funcion_id,
 				asientos_seleccionados=asientos_seleccionados,
@@ -133,20 +133,11 @@ class VentaUI(ttk.Frame):
 		except (ValueError, VentaError) as exc:
 			messagebox.showerror("Error", str(exc))
 
-	def _limpiar_compras(self):
-		if not messagebox.askyesno("Confirmar", "¿Deseas limpiar todas las compras?"):
-			return
-		try:
-			ventas_eliminadas = self._service.limpiar_compras()
-			self._cargar_ventas()
-			messagebox.showinfo("Exito", f"Se limpiaron {len(ventas_eliminadas)} compras.")
-		except (ValueError, VentaError) as exc:
-			messagebox.showerror("Error", str(exc))
-
 	def _cargar_ventas(self, pelicula=None):
 		pelicula = self._pelicula_var.get() if pelicula is None else pelicula
 		for item in self._tabla.get_children():
 			self._tabla.delete(item)
+		# La tabla se actualiza automáticamente con la película seleccionada.
 		for venta in self._service.listar_ventas(pelicula=pelicula):
 			self._tabla.insert(
 				"",
@@ -198,6 +189,7 @@ class VentaUI(ttk.Frame):
 		self._tabla.selection_remove(self._tabla.selection())
 
 	def _limpiar_seleccion_asientos(self):
+		# Tras registrar, solo se reinician los asientos; la película se conserva.
 		self._cantidad_var.set("0")
 		self._asientos_seleccionados = []
 		self._asientos_var.set("Sin asientos seleccionados")
