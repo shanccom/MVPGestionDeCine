@@ -29,7 +29,7 @@ class Venta:
 class ModuloVentaEntradas:
     """Gestiona la venta y cancelacion de entradas en una base SQLite local."""
 
-    def __init__(self, database_path: str = ":memory:") -> None:
+    def __init__(self, database_path: str = "venta_entradas.sqlite3") -> None:
         self._conexion = sqlite3.connect(database_path)
         self._conexion.row_factory = sqlite3.Row
         self._crear_tabla_ventas()
