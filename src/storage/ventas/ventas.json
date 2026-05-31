@@ -48,6 +48,18 @@
       "total": 15.0,
       "fecha_venta": "2026-05-31T11:39:21",
       "estado": "ACTIVA"
+    },
+    {
+      "id_venta": 5,
+      "pelicula": "Toy Story",
+      "funcion_id": 2,
+      "asientos": [
+        18
+      ],
+      "cantidad_entradas": 1,
+      "total": 15.0,
+      "fecha_venta": "2026-05-31T11:48:14",
+      "estado": "CANCELADA"
     }
   ]
 }

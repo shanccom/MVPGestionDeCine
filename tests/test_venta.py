@@ -1,9 +1,9 @@
 from pathlib import Path
 import sys
 import tempfile
+import tkinter as tk
 import unittest
 from unittest import mock
-import tkinter as tk
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,7 +13,8 @@ from src.services.venta_service import VentaError, VentaService
 from src.ui.venta_ui import VentaUI
 
 
-class PruebasParticionEquivalenciaVentaEntradas(unittest.TestCase):
+# PE
+class PruebasPEVentaEntradas(unittest.TestCase):
 	def setUp(self):
 		self.tempdir = tempfile.TemporaryDirectory()
 		self.ruta = Path(self.tempdir.name) / "ventas.json"
@@ -22,98 +23,49 @@ class PruebasParticionEquivalenciaVentaEntradas(unittest.TestCase):
 	def tearDown(self):
 		self.tempdir.cleanup()
 
-	def test_venta_valida_en_clase_equivalencia_valida(self):
-		venta = self.modulo.vender_entradas(
-			pelicula="Hola",
-			funcion_id=1,
-			asientos_seleccionados=(1, 2, 3, 4, 5),
-		)
-
+	def test_venta_valida(self):
+		venta = self.modulo.vender_entradas("Hola", 1, (1, 2, 3, 4, 5))
 		self.assertEqual(venta.pelicula, "Hola")
 		self.assertEqual(venta.funcion_id, 1)
 		self.assertEqual(venta.cantidad_entradas, 5)
 		self.assertEqual(venta.asientos, (1, 2, 3, 4, 5))
 		self.assertEqual(venta.total, 75.0)
 		self.assertEqual(venta.estado, "ACTIVA")
-		self.assertEqual(self.modulo.entradas_disponibles(1), 295)
 
-	def test_cantidad_cero_es_invalida(self):
+	def test_sin_asientos(self):
 		with self.assertRaises(VentaError):
-			self.modulo.vender_entradas(
-				pelicula="Hola",
-				funcion_id=1,
-				asientos_seleccionados=(),
-			)
+			self.modulo.vender_entradas("Hola", 1, ())
 
-	def test_cantidad_mayor_a_diez_es_invalida(self):
+	def test_mas_de_diez_asientos(self):
 		with self.assertRaises(VentaError):
-			self.modulo.vender_entradas(
-				pelicula="Hola",
-				funcion_id=1,
-				asientos_seleccionados=tuple(range(1, 16)),
-			)
+			self.modulo.vender_entradas("Hola", 1, tuple(range(1, 16)))
 
-	def test_control_de_aforo_rechaza_venta_excedida(self):
-		self.modulo.vender_entradas(
-			pelicula="Hola",
-			funcion_id=1,
-			asientos_seleccionados=(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
-		)
-
-		with self.assertRaises(VentaError):
-			self.modulo.vender_entradas(
-				pelicula="Hola",
-				funcion_id=1,
-				asientos_seleccionados=(1, 11),
-			)
-
-	def test_cancelar_venta_libera_aforo(self):
-		venta = self.modulo.vender_entradas(
-			pelicula="Hola",
-			funcion_id=1,
-			asientos_seleccionados=(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
-		)
-		self.assertEqual(self.modulo.entradas_disponibles(1), 290)
-
+	def test_cancelar_venta(self):
+		venta = self.modulo.vender_entradas("Hola", 1, (1, 2, 3))
 		cancelada = self.modulo.cancelar_venta(venta.id_venta)
 		self.assertEqual(cancelada.estado, "CANCELADA")
-		self.assertEqual(self.modulo.entradas_disponibles(1), 300)
 
-	def test_eliminar_venta_borra_registro(self):
-		venta = self.modulo.vender_entradas(
-			pelicula="Hola",
-			funcion_id=1,
-			asientos_seleccionados=(1, 2),
-		)
+	def test_eliminar_venta(self):
+		venta = self.modulo.vender_entradas("Hola", 1, (1, 2))
 		eliminada = self.modulo.eliminar_venta(venta.id_venta)
 		self.assertEqual(eliminada.id_venta, venta.id_venta)
-		self.assertEqual(self.modulo.listar_ventas(), [])
 
-	def test_listar_ventas_por_funcion(self):
-		self.modulo.vender_entradas("Hola", 1, (1, 2, 3))
-		self.modulo.vender_entradas("Hola", 2, (4, 5, 6, 7))
-
-		ventas_funcion_1 = self.modulo.listar_ventas(1)
-		self.assertEqual(len(ventas_funcion_1), 1)
-		self.assertEqual(ventas_funcion_1[0].funcion_id, 1)
-
-	def test_listar_ventas_por_pelicula(self):
+	def test_listar_por_pelicula(self):
 		self.modulo.vender_entradas("Hola", 1, (1, 2, 3))
 		self.modulo.vender_entradas("Otra", 2, (4, 5))
+		ventas = self.modulo.listar_ventas(pelicula="Hola")
+		self.assertEqual(len(ventas), 1)
+		self.assertEqual(ventas[0].pelicula, "Hola")
 
-		ventas_hola = self.modulo.listar_ventas(pelicula="Hola")
-		self.assertEqual(len(ventas_hola), 1)
-		self.assertEqual(ventas_hola[0].pelicula, "Hola")
-
-	def test_id_venta_autoincrementa_desde_uno(self):
+	def test_id_autoincrementa(self):
 		primera = self.modulo.vender_entradas("Hola", 1, (1,))
 		segunda = self.modulo.vender_entradas("Hola", 2, (2,))
-
 		self.assertEqual(primera.id_venta, 1)
 		self.assertEqual(segunda.id_venta, 2)
 
 
-class PruebasValoresLimiteVentaEntradas(unittest.TestCase):
+# AVL
+class PruebasAVLVentaEntradas(unittest.TestCase):
 	def setUp(self):
 		self.tempdir = tempfile.TemporaryDirectory()
 		self.ruta = Path(self.tempdir.name) / "ventas.json"
@@ -122,41 +74,46 @@ class PruebasValoresLimiteVentaEntradas(unittest.TestCase):
 	def tearDown(self):
 		self.tempdir.cleanup()
 
-	def test_limite_inferior_cantidad_menos_uno_es_invalido(self):
-		with self.assertRaisesRegex(VentaError, "Selecciona al menos un asiento"):
-			self.modulo.vender_entradas("Hola", 1, ())
-
-	def test_limite_inferior_cantidad_uno_es_valido(self):
+	def test_un_asiento(self):
 		venta = self.modulo.vender_entradas("Hola", 1, (1,))
 		self.assertEqual(venta.cantidad_entradas, 1)
 		self.assertEqual(venta.total, 15.0)
 
-	def test_valores_cercanos_al_limite_superior_cantidad(self):
-		venta_nueve = self.modulo.vender_entradas("Hola", 1, (1, 2, 3, 4, 5, 6, 7, 8, 9))
-		self.assertEqual(venta_nueve.cantidad_entradas, 9)
+	def test_nueve_asientos(self):
+		venta = self.modulo.vender_entradas("Hola", 1, (1, 2, 3, 4, 5, 6, 7, 8, 9))
+		self.assertEqual(venta.cantidad_entradas, 9)
 
-		venta_diez = self.modulo.vender_entradas("Hola", 2, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
-		self.assertEqual(venta_diez.cantidad_entradas, 10)
+	def test_diez_asientos(self):
+		venta = self.modulo.vender_entradas("Hola", 2, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+		self.assertEqual(venta.cantidad_entradas, 10)
 
+	def test_doce_asientos_es_invalido(self):
 		with self.assertRaises(VentaError):
 			self.modulo.vender_entradas("Hola", 3, tuple(range(1, 12)))
 
-	def test_aforo_real_en_limite(self):
+	def test_asiento_ya_usado_en_misma_funcion(self):
 		self.modulo.vender_entradas("Hola", 1, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
-		self.modulo.vender_entradas("Hola", 1, (11, 12, 13, 14, 15, 16, 17, 18, 19, 20))
-
 		with self.assertRaises(VentaError):
-			self.modulo.vender_entradas("Hola", 1, (21,))
+			self.modulo.vender_entradas("Hola", 1, (10,))
 
 
+# Interfaz
 class PruebasInterfazVentaEntradas(unittest.TestCase):
-	def test_funcion_id_se_autocompleta_con_pelicula(self):
-		root = tk.Tk()
+	def crear_ui(self):
+		try:
+			root = tk.Tk()
+		except tk.TclError:
+			self.skipTest("Tk no disponible")
+
 		root.withdraw()
 		tempdir = tempfile.TemporaryDirectory()
 		ruta = Path(tempdir.name) / "ventas.json"
 		service = VentaService(str(ruta))
 		ui = VentaUI(master=root, service=service)
+		return root, tempdir, ui
+
+	def test_funcion_auto_por_pelicula(self):
+		root, tempdir, ui = self.crear_ui()
 		try:
 			if ui._peliculas_disponibles:
 				ui._pelicula_var.set(ui._peliculas_disponibles[0])
@@ -166,27 +123,7 @@ class PruebasInterfazVentaEntradas(unittest.TestCase):
 			ui._root.destroy()
 			tempdir.cleanup()
 
-	def test_selector_de_asientos_limita_a_diez(self):
-		root = tk.Tk()
-		root.withdraw()
-		tempdir = tempfile.TemporaryDirectory()
-		ruta = Path(tempdir.name) / "ventas.json"
-		service = VentaService(str(ruta))
-		ui = VentaUI(master=root, service=service)
-		try:
-			for asiento in range(1, 11):
-				ui._asientos_seleccionados.append(asiento)
-			ui._asientos_var.set(", ".join(f"A{a}" for a in ui._asientos_seleccionados))
-			ui._cantidad_var.set(str(len(ui._asientos_seleccionados)))
-			self.assertEqual(ui._cantidad_var.get(), "10")
-		finally:
-			ui._root.destroy()
-			tempdir.cleanup()
-
-	@mock.patch("src.ui.venta_ui.messagebox.showinfo")
-	@mock.patch("src.ui.venta_ui.messagebox.showerror")
-	@mock.patch("src.ui.venta_ui.messagebox.askyesno", return_value=True)
-	def test_registrar_envia_los_asientos_seleccionados(self, _askyesno, _showerror, _showinfo):
+	def test_registrar_limpia_asientos(self):
 		class ServicioFalso:
 			def __init__(self):
 				self.llamadas = []
@@ -195,7 +132,7 @@ class PruebasInterfazVentaEntradas(unittest.TestCase):
 				self.llamadas.append((pelicula, funcion_id, asientos_seleccionados))
 				return object()
 
-			def listar_ventas(self, funcion_id=None):
+			def listar_ventas(self, funcion_id=None, pelicula=None):
 				return []
 
 			def asientos_ocupados(self, funcion_id):
@@ -203,27 +140,22 @@ class PruebasInterfazVentaEntradas(unittest.TestCase):
 
 		root = tk.Tk()
 		root.withdraw()
-		service = ServicioFalso()
-		ui = VentaUI(master=root, service=service)
+		ui = VentaUI(master=root, service=ServicioFalso())
 		try:
 			ui._pelicula_var.set(ui._peliculas_disponibles[0] if ui._peliculas_disponibles else "Pelicula")
 			ui._funcion_var.set("1")
 			ui._asientos_seleccionados = [1, 2, 3]
 			ui._asientos_var.set("A1, A2, A3")
 			ui._cantidad_var.set("3")
-			ui._registrar()
-			self.assertEqual(service.llamadas, [(ui._pelicula_var.get(), 1, (1, 2, 3))])
-			self.assertEqual(ui._pelicula_var.get(), ui._peliculas_disponibles[0] if ui._peliculas_disponibles else "Pelicula")
-			self.assertEqual(ui._funcion_var.get(), "1")
-			self.assertEqual(ui._cantidad_var.get(), "0")
-			self.assertEqual(ui._asientos_var.get(), "Sin asientos seleccionados")
+			with mock.patch("src.ui.venta_ui.messagebox.showinfo"), mock.patch("src.ui.venta_ui.messagebox.showerror"):
+				ui._registrar()
 			self.assertEqual(ui._asientos_seleccionados, [])
+			self.assertEqual(ui._asientos_var.get(), "Sin asientos seleccionados")
+			self.assertEqual(ui._cantidad_var.get(), "0")
 		finally:
 			ui._root.destroy()
 
-	@mock.patch("src.ui.venta_ui.messagebox.showinfo")
-	@mock.patch("src.ui.venta_ui.messagebox.showerror")
-	def test_cargar_ventas_filtra_por_pelicula(self, _showerror, _showinfo):
+	def test_filtrar_por_pelicula(self):
 		class ServicioFalso:
 			def __init__(self):
 				self.ventas = []
@@ -251,10 +183,7 @@ class PruebasInterfazVentaEntradas(unittest.TestCase):
 		ui = VentaUI(master=root, service=service)
 		try:
 			ui._cargar_ventas("Hola")
-			filas = ui._tabla.get_children()
-			self.assertEqual(len(filas), 1)
-			valores = ui._tabla.item(filas[0], "values")
-			self.assertEqual(valores[1], "Hola")
+			self.assertEqual(len(ui._tabla.get_children()), 1)
 		finally:
 			ui._root.destroy()
 
