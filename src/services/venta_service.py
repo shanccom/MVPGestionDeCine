@@ -20,6 +20,12 @@ class VentaService:
 			if not isinstance(asientos_seleccionados, (list, tuple)):
 				raise VentaError("asientos invalidos")
 			cantidad_entradas = len(asientos_seleccionados)
+			if cantidad_entradas > 10:
+				raise VentaError("no se puede comprar mas de 10 asientos")
+			ocupados = self._repo.asientos_ocupados(funcion_id)
+			conflictivos = sorted(set(asientos_seleccionados).intersection(ocupados))
+			if conflictivos:
+				raise VentaError("los asientos seleccionados ya fueron comprados")
 			venta = Venta(
 				id_venta=None,
 				pelicula=pelicula,

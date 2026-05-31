@@ -53,12 +53,13 @@ class Venta:
 			fecha = datetime.fromisoformat(fecha)
 		else:
 			fecha = None
+		asientos = tuple(data.get("asientos", []))
 		return cls(
 			id_venta=data.get("id_venta"),
 			pelicula=data.get("pelicula", "Sin pelicula"),
 			funcion_id=data["funcion_id"],
-			asientos=tuple(data.get("asientos", [])),
-			cantidad_entradas=data.get("cantidad_entradas", len(data.get("asientos", []))),
+			asientos=asientos,
+			cantidad_entradas=data.get("cantidad_entradas", len(asientos)),
 			total=data["total"],
 			fecha_venta=fecha,
 			estado=data.get("estado", "ACTIVA"),

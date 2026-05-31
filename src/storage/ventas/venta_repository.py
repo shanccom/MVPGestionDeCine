@@ -65,6 +65,17 @@ class VentaRepository:
             if data.get("funcion_id") == funcion_id and data.get("estado") == "ACTIVA"
         )
 
+    def asientos_ocupados(self, funcion_id):
+        ocupados = set()
+        for data in self._leer():
+            if data.get("funcion_id") != funcion_id:
+                continue
+            if data.get("estado") != "ACTIVA":
+                continue
+            for asiento in data.get("asientos", []):
+                ocupados.add(asiento)
+        return ocupados
+
     def _asegurar_archivo(self):
         self._ruta.parent.mkdir(parents=True, exist_ok=True)
         if not self._ruta.exists():

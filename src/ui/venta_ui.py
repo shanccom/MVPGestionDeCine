@@ -27,8 +27,8 @@ class VentaUI(ttk.Frame):
 		self._funcion_var = tk.StringVar(value="1")
 		self._capacidad_var = tk.StringVar(value="100")
 		self._cantidad_var = tk.StringVar(value="0")
+		self._asientos_var = tk.StringVar(value="Sin asientos seleccionados")
 		self._asientos_seleccionados = []
-		self._botones_asientos = []
 
 		form = ttk.LabelFrame(self, text="Datos de venta")
 		form.pack(fill="x", padx=5, pady=5)
@@ -54,21 +54,16 @@ class VentaUI(ttk.Frame):
 			row=2, column=1, sticky="w", padx=5, pady=5
 		)
 
-		tk.Label(form, text="Asientos seleccionados").grid(row=3, column=0, sticky="nw", padx=5, pady=5)
-		asientos_frame = ttk.Frame(form)
-		asientos_frame.grid(row=3, column=1, sticky="w", padx=5, pady=5)
-		for indice in range(1, 11):
-			boton = ttk.Checkbutton(
-				asientos_frame,
-				text=f"A{indice}",
-				command=lambda asiento=indice: self._alternar_asiento(asiento),
-			)
-			boton.grid(row=(indice - 1) // 5, column=(indice - 1) % 5, sticky="w", padx=4, pady=2)
-			self._botones_asientos.append(boton)
-
-		tk.Label(form, text="Cantidad entradas").grid(row=4, column=0, sticky="w", padx=5, pady=5)
-		ttk.Entry(form, textvariable=self._cantidad_var, width=40).grid(
+		tk.Label(form, text="Asientos").grid(row=3, column=0, sticky="w", padx=5, pady=5)
+		asientos_entry = ttk.Entry(form, textvariable=self._asientos_var, width=40, state="readonly")
+		asientos_entry.grid(row=3, column=1, sticky="w", padx=5, pady=5)
+		ttk.Button(form, text="Seleccionar asientos", command=self._abrir_selector_asientos).grid(
 			row=4, column=1, sticky="w", padx=5, pady=5
+		)
+
+		tk.Label(form, text="Cantidad entradas").grid(row=5, column=0, sticky="w", padx=5, pady=5)
+		ttk.Entry(form, textvariable=self._cantidad_var, width=40, state="readonly").grid(
+			row=5, column=1, sticky="w", padx=5, pady=5
 		)
 
 		acciones = ttk.Frame(self)
@@ -168,6 +163,7 @@ class VentaUI(ttk.Frame):
 		self._pelicula_var.set(valores[1])
 		self._funcion_var.set(valores[2])
 		self._cantidad_var.set(valores[3])
+		self._asientos_var.set(", ".join(f"A{asiento}" for asiento in self._asientos_seleccionados) if self._asientos_seleccionados else "Sin asientos seleccionados")
 		self._venta_seleccionada = int(valores[0])
 
 	def _venta_id_seleccionada(self):
@@ -186,9 +182,7 @@ class VentaUI(ttk.Frame):
 		self._capacidad_var.set("100")
 		self._cantidad_var.set("0")
 		self._asientos_seleccionados = []
-		for boton in self._botones_asientos:
-			if hasattr(boton, "state"):
-				boton.state(["!selected"])
+		self._asientos_var.set("Sin asientos seleccionados")
 		if self._peliculas_disponibles:
 			self._pelicula_var.set(self._peliculas_disponibles[0])
 		self._actualizar_funcion_auto()
@@ -202,15 +196,75 @@ class VentaUI(ttk.Frame):
 		else:
 			self._funcion_var.set("1")
 
-	def _alternar_asiento(self, asiento):
-		if asiento in self._asientos_seleccionados:
-			self._asientos_seleccionados.remove(asiento)
-		else:
-			if len(self._asientos_seleccionados) >= 10:
-				messagebox.showerror("Error", "No se puede comprar mas de 10 asientos.")
+	def _abrir_selector_asientos(self):
+		ventana = tk.Toplevel(self._root)
+		ventana.title("Seleccionar asientos")
+		ventana.transient(self._root)
+		ventana.grab_set()
+
+		ocupados = self._service.asientos_ocupados(int(self._funcion_var.get())) if hasattr(self._service, "asientos_ocupados") else set()
+		tk.Label(ventana, text="Selecciona hasta 10 asientos").pack(anchor="w", padx=10, pady=(10, 6))
+
+		contenedor = ttk.Frame(ventana, padding=10)
+		contenedor.pack(fill="both", expand=True)
+
+		seleccion_temporal = set(self._asientos_seleccionados)
+		botones = {}
+
+		def refrescar_estado():
+			for asiento, boton in botones.items():
+				if asiento in ocupados:
+					boton.configure(text=f"A{asiento} (Ocupado)", state="disabled")
+				elif asiento in seleccion_temporal:
+					boton.configure(text=f"A{asiento} (Sel)", state="normal")
+				else:
+					boton.configure(text=f"A{asiento}", state="normal")
+
+		def alternar(asiento):
+			if asiento in ocupados:
 				return
-			self._asientos_seleccionados.append(asiento)
-		self._cantidad_var.set(str(len(self._asientos_seleccionados)))
+			if asiento in seleccion_temporal:
+				seleccion_temporal.remove(asiento)
+			else:
+				if len(seleccion_temporal) >= 10:
+					messagebox.showerror("Error", "No se puede comprar mas de 10 asientos.")
+					return
+				seleccion_temporal.add(asiento)
+			refrescar_estado()
+
+		for asiento in range(1, 21):
+			boton = ttk.Button(contenedor, width=10, command=lambda valor=asiento: alternar(valor))
+			boton.grid(row=(asiento - 1) // 5, column=(asiento - 1) % 5, padx=4, pady=4, sticky="ew")
+			botones[asiento] = boton
+
+		resumen = tk.StringVar()
+
+		def actualizar_resumen():
+			seleccionados = sorted(seleccion_temporal)
+			resumen.set(", ".join(f"A{asiento}" for asiento in seleccionados) if seleccionados else "Sin asientos seleccionados")
+			self._asientos_var.set(resumen.get())
+			self._cantidad_var.set(str(len(seleccionados)))
+
+		def aceptar():
+			if not seleccion_temporal:
+				messagebox.showerror("Error", "Debes seleccionar al menos un asiento.")
+				return
+			self._asientos_seleccionados = sorted(seleccion_temporal)
+			actualizar_resumen()
+			ventana.destroy()
+
+		def cancelar():
+			ventana.destroy()
+
+		refrescar_estado()
+		actualizar_resumen()
+		botonera = ttk.Frame(ventana, padding=(10, 0, 10, 10))
+		botonera.pack(fill="x")
+		tk.Label(botonera, textvariable=resumen).pack(anchor="w", pady=(0, 8))
+		acciones = ttk.Frame(botonera)
+		acciones.pack(fill="x")
+		ttk.Button(acciones, text="Aceptar", command=aceptar).pack(side="left", padx=(0, 6))
+		ttk.Button(acciones, text="Cancelar", command=cancelar).pack(side="left")
 
 	def _cargar_peliculas_disponibles(self):
 		ruta = Path(__file__).resolve().parents[1] / "storage" / "peliculas" / "peliculas.json"

@@ -206,6 +206,23 @@ class PruebasInterfazVentaEntradas(unittest.TestCase):
 			ui._root.destroy()
 			tempdir.cleanup()
 
+	def test_selector_de_asientos_limita_a_diez(self):
+		root = tk.Tk()
+		root.withdraw()
+		tempdir = tempfile.TemporaryDirectory()
+		ruta = Path(tempdir.name) / "ventas.json"
+		service = VentaService(str(ruta))
+		ui = VentaUI(master=root, service=service)
+		try:
+			for asiento in range(1, 11):
+				ui._asientos_seleccionados.append(asiento)
+			ui._asientos_var.set(", ".join(f"A{a}" for a in ui._asientos_seleccionados))
+			ui._cantidad_var.set(str(len(ui._asientos_seleccionados)))
+			self.assertEqual(ui._cantidad_var.get(), "10")
+		finally:
+			ui._root.destroy()
+			tempdir.cleanup()
+
 
 if __name__ == "__main__":
 	unittest.main()
