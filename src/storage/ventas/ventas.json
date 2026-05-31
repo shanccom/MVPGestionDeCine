@@ -60,6 +60,18 @@
       "total": 15.0,
       "fecha_venta": "2026-05-31T11:48:14",
       "estado": "CANCELADA"
+    },
+    {
+      "id_venta": 7,
+      "pelicula": "Hola 123",
+      "funcion_id": 1,
+      "asientos": [
+        6
+      ],
+      "cantidad_entradas": 1,
+      "total": 15.0,
+      "fecha_venta": "2026-05-31T12:08:11",
+      "estado": "ACTIVA"
     }
   ]
 }

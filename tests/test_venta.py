@@ -124,6 +124,16 @@ class PruebasInterfazVentaEntradas(unittest.TestCase):
 			tempdir.cleanup()
 
 	def test_registrar_limpia_asientos(self):
+		class VariableFalsa:
+			def __init__(self, valor=""):
+				self.valor = valor
+
+			def get(self):
+				return self.valor
+
+			def set(self, valor):
+				self.valor = valor
+
 		class ServicioFalso:
 			def __init__(self):
 				self.llamadas = []
@@ -138,22 +148,25 @@ class PruebasInterfazVentaEntradas(unittest.TestCase):
 			def asientos_ocupados(self, funcion_id):
 				return set()
 
-		root = tk.Tk()
-		root.withdraw()
-		ui = VentaUI(master=root, service=ServicioFalso())
+		ui = VentaUI.__new__(VentaUI)
+		ui._root = mock.Mock()
+		ui._service = ServicioFalso()
+		ui._peliculas_disponibles = ["Pelicula"]
+		ui._pelicula_var = VariableFalsa("Pelicula")
+		ui._funcion_var = VariableFalsa("1")
+		ui._cantidad_var = VariableFalsa("3")
+		ui._asientos_var = VariableFalsa("A1, A2, A3")
+		ui._asientos_seleccionados = [1, 2, 3]
+		ui._cargar_ventas = mock.Mock()
+		ui._mantener_ventana_activa = mock.Mock()
 		try:
-			ui._pelicula_var.set(ui._peliculas_disponibles[0] if ui._peliculas_disponibles else "Pelicula")
-			ui._funcion_var.set("1")
-			ui._asientos_seleccionados = [1, 2, 3]
-			ui._asientos_var.set("A1, A2, A3")
-			ui._cantidad_var.set("3")
 			with mock.patch("src.ui.venta_ui.messagebox.showinfo"), mock.patch("src.ui.venta_ui.messagebox.showerror"):
 				ui._registrar()
 			self.assertEqual(ui._asientos_seleccionados, [])
 			self.assertEqual(ui._asientos_var.get(), "Sin asientos seleccionados")
 			self.assertEqual(ui._cantidad_var.get(), "0")
 		finally:
-			ui._root.destroy()
+			ui._root.destroy.assert_not_called()
 
 	def test_filtrar_por_pelicula(self):
 		class ServicioFalso:
