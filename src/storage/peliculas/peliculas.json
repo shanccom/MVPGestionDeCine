@@ -1,0 +1,10 @@
+{
+  "comentario": "Datos de peliculas",
+  "items": [
+    {
+      "titulo": "Hola",
+      "genero": "Accion",
+      "duracion": 120
+    }
+  ]
+}

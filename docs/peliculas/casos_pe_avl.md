@@ -32,15 +32,6 @@
 | PE-DU-06 | 90.5 | Invalida (no entero) | Rechaza |
 | PE-DU-07 | "noventa" | Invalida (no numerico) | Rechaza |
 
-## clasificacion
-
-| ID | Entrada | Clase | Resultado esperado |
-| --- | --- | --- | --- |
-| PE-CL-01 | "APT" | Valida (catalogo) | Acepta |
-| PE-CL-02 | "14+" | Valida (catalogo) | Acepta |
-| PE-CL-03 | "18+" | Valida (catalogo) | Acepta |
-| PE-CL-04 | "R" | Invalida (fuera de catalogo) | Rechaza |
-| PE-CL-05 | "" | Invalida (vacio) | Rechaza |
 
 # Casos de Analisis de Valores Limite (AVL)
 
@@ -69,11 +60,3 @@
 | AVL-GE-01 | "Accion" (primero) | Acepta |
 | AVL-GE-02 | "Fantasia" (ultimo) | Acepta |
 | AVL-GE-03 | "Western" | Rechaza |
-
-## clasificacion (catalogo)
-
-| ID | Valor | Resultado esperado |
-| --- | --- | --- |
-| AVL-CL-01 | "APT" (primero) | Acepta |
-| AVL-CL-02 | "18+" (ultimo) | Acepta |
-| AVL-CL-03 | "R" | Rechaza |

@@ -1,7 +1,7 @@
 # Requisitos del modulo Pelicula
 
 ## Objetivo del modulo
-Permitir el registro, consulta, actualizacion y baja de peliculas con datos consistentes (titulo, genero, duracion y clasificacion) para habilitar su uso en la programacion de funciones y operaciones del cine.
+Permitir el registro, consulta, actualizacion y baja de peliculas con datos consistentes (titulo, genero y duracion) para habilitar su uso en la programacion de funciones y operaciones del cine.
 
 ## Campos del modulo
 
@@ -10,12 +10,11 @@ Permitir el registro, consulta, actualizacion y baja de peliculas con datos cons
 | titulo | Texto | Nombre comercial de la pelicula | Obligatorio, 1 a 100 caracteres, unico (sin distinguir mayusculas) |
 | genero | Texto (catalogo) | Categoria de la pelicula | Obligatorio, valor del catalogo: Accion, Comedia, Drama, Terror, Animacion, Ciencia Ficcion, Documental, Romance, Aventura, Fantasia |
 | duracion | Entero (min) | Duracion en minutos | Obligatorio, 1 a 300 |
-| clasificacion | Texto (catalogo) | Restriccion de edad | Obligatorio, valor del catalogo: APT, 14+, 18+ |
 
 ## Requisitos funcionales
-1. Registrar una pelicula con los cuatro campos definidos.
+1. Registrar una pelicula con los tres campos definidos.
 2. Consultar el listado de peliculas con paginacion y orden por titulo.
-3. Buscar peliculas por titulo (coincidencia parcial) y filtrar por genero y clasificacion.
+3. Buscar peliculas por titulo (coincidencia parcial) y filtrar por genero.
 4. Visualizar el detalle de una pelicula.
 5. Editar una pelicula existente.
 6. Eliminar una pelicula cuando no tenga funciones asociadas.
@@ -34,5 +33,4 @@ Permitir el registro, consulta, actualizacion y baja de peliculas con datos cons
 2. El titulo debe ser unico sin distinguir mayusculas.
 3. La duracion es un entero en minutos dentro del rango 1 a 300.
 4. El genero debe pertenecer al catalogo permitido.
-5. La clasificacion debe pertenecer al catalogo permitido.
-6. No se permite eliminar una pelicula que tenga funciones asociadas.
+5. No se permite eliminar una pelicula que tenga funciones asociadas.
