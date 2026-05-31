@@ -66,7 +66,6 @@ class VentaUI(ttk.Frame):
 		ttk.Button(acciones, text="Registrar", command=self._registrar).pack(side="left", padx=5)
 		tk.Button(acciones, text="Eliminar registro", command=self._eliminar_registro).pack(side="left", padx=5)
 		tk.Button(acciones, text="Cancelar seleccionada", command=self._cancelar).pack(side="left", padx=5)
-		tk.Button(acciones, text="Limpiar compras", command=self._limpiar_compras).pack(side="left", padx=5)
 		ttk.Button(acciones, text="Limpiar", command=self._limpiar).pack(side="left", padx=5)
 
 		tabla_frame = ttk.LabelFrame(self, text="Ventas")
