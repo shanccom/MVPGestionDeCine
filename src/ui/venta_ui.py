@@ -25,7 +25,6 @@ class VentaUI(ttk.Frame):
 
 		self._pelicula_var = tk.StringVar(value=self._peliculas_disponibles[0] if self._peliculas_disponibles else "")
 		self._funcion_var = tk.StringVar(value="1")
-		self._capacidad_var = tk.StringVar(value="100")
 		self._cantidad_var = tk.StringVar(value="0")
 		self._asientos_var = tk.StringVar(value="Sin asientos seleccionados")
 		self._asientos_seleccionados = []
@@ -49,21 +48,16 @@ class VentaUI(ttk.Frame):
 			row=1, column=1, sticky="w", padx=5, pady=5
 		)
 
-		tk.Label(form, text="Capacidad sala").grid(row=2, column=0, sticky="w", padx=5, pady=5)
-		ttk.Entry(form, textvariable=self._capacidad_var, width=40).grid(
-			row=2, column=1, sticky="w", padx=5, pady=5
-		)
-
-		tk.Label(form, text="Asientos").grid(row=3, column=0, sticky="w", padx=5, pady=5)
+		tk.Label(form, text="Asientos").grid(row=2, column=0, sticky="w", padx=5, pady=5)
 		asientos_entry = ttk.Entry(form, textvariable=self._asientos_var, width=40, state="readonly")
-		asientos_entry.grid(row=3, column=1, sticky="w", padx=5, pady=5)
+		asientos_entry.grid(row=2, column=1, sticky="w", padx=5, pady=5)
 		ttk.Button(form, text="Seleccionar asientos", command=self._abrir_selector_asientos).grid(
-			row=4, column=1, sticky="w", padx=5, pady=5
+			row=3, column=1, sticky="w", padx=5, pady=5
 		)
 
-		tk.Label(form, text="Cantidad entradas").grid(row=5, column=0, sticky="w", padx=5, pady=5)
+		tk.Label(form, text="Cantidad entradas").grid(row=4, column=0, sticky="w", padx=5, pady=5)
 		ttk.Entry(form, textvariable=self._cantidad_var, width=40, state="readonly").grid(
-			row=5, column=1, sticky="w", padx=5, pady=5
+			row=4, column=1, sticky="w", padx=5, pady=5
 		)
 
 		acciones = ttk.Frame(self)
@@ -72,7 +66,7 @@ class VentaUI(ttk.Frame):
 		ttk.Button(acciones, text="Registrar", command=self._registrar).pack(side="left", padx=5)
 		tk.Button(acciones, text="Eliminar registro", command=self._eliminar_registro).pack(side="left", padx=5)
 		tk.Button(acciones, text="Cancelar seleccionada", command=self._cancelar).pack(side="left", padx=5)
-		ttk.Button(acciones, text="Listar", command=self._cargar_ventas).pack(side="left", padx=5)
+		tk.Button(acciones, text="Limpiar compras", command=self._limpiar_compras).pack(side="left", padx=5)
 		ttk.Button(acciones, text="Limpiar", command=self._limpiar).pack(side="left", padx=5)
 
 		tabla_frame = ttk.LabelFrame(self, text="Ventas")
@@ -105,12 +99,16 @@ class VentaUI(ttk.Frame):
 
 	def _registrar(self):
 		try:
+			pelicula = self._pelicula_var.get()
+			funcion_id = int(self._funcion_var.get())
+			asientos_seleccionados = tuple(self._asientos_seleccionados)
+
 			venta = self._service.vender_entradas(
-				pelicula=self._pelicula_var.get(),
-				funcion_id=int(self._funcion_var.get()),
-				capacidad_sala=int(self._capacidad_var.get()),
-				asientos_seleccionados=tuple(self._asientos_seleccionados),
+				pelicula=pelicula,
+				funcion_id=funcion_id,
+				asientos_seleccionados=asientos_seleccionados,
 			)
+			self._limpiar_seleccion_asientos()
 			self._cargar_ventas()
 			messagebox.showinfo("Exito", "Venta registrada.")
 		except (ValueError, VentaError) as exc:
@@ -135,10 +133,21 @@ class VentaUI(ttk.Frame):
 		except (ValueError, VentaError) as exc:
 			messagebox.showerror("Error", str(exc))
 
-	def _cargar_ventas(self):
+	def _limpiar_compras(self):
+		if not messagebox.askyesno("Confirmar", "¿Deseas limpiar todas las compras?"):
+			return
+		try:
+			ventas_eliminadas = self._service.limpiar_compras()
+			self._cargar_ventas()
+			messagebox.showinfo("Exito", f"Se limpiaron {len(ventas_eliminadas)} compras.")
+		except (ValueError, VentaError) as exc:
+			messagebox.showerror("Error", str(exc))
+
+	def _cargar_ventas(self, pelicula=None):
+		pelicula = self._pelicula_var.get() if pelicula is None else pelicula
 		for item in self._tabla.get_children():
 			self._tabla.delete(item)
-		for venta in self._service.listar_ventas():
+		for venta in self._service.listar_ventas(pelicula=pelicula):
 			self._tabla.insert(
 				"",
 				"end",
@@ -179,7 +188,6 @@ class VentaUI(ttk.Frame):
 
 	def _limpiar(self):
 		self._funcion_var.set("")
-		self._capacidad_var.set("100")
 		self._cantidad_var.set("0")
 		self._asientos_seleccionados = []
 		self._asientos_var.set("Sin asientos seleccionados")
@@ -189,12 +197,18 @@ class VentaUI(ttk.Frame):
 		self._venta_seleccionada = None
 		self._tabla.selection_remove(self._tabla.selection())
 
+	def _limpiar_seleccion_asientos(self):
+		self._cantidad_var.set("0")
+		self._asientos_seleccionados = []
+		self._asientos_var.set("Sin asientos seleccionados")
+
 	def _actualizar_funcion_auto(self, _event=None):
 		pelicula = self._pelicula_var.get()
 		if pelicula in self._peliculas_disponibles:
 			self._funcion_var.set(str(self._peliculas_disponibles.index(pelicula) + 1))
 		else:
 			self._funcion_var.set("1")
+		self._cargar_ventas(pelicula)
 
 	def _abrir_selector_asientos(self):
 		ventana = tk.Toplevel(self._root)
@@ -245,12 +259,20 @@ class VentaUI(ttk.Frame):
 			self._asientos_var.set(resumen.get())
 			self._cantidad_var.set(str(len(seleccionados)))
 
+		def aplicar_seleccion():
+			self._asientos_seleccionados = sorted(seleccion_temporal)
+			actualizar_resumen()
+
 		def aceptar():
 			if not seleccion_temporal:
 				messagebox.showerror("Error", "Debes seleccionar al menos un asiento.")
 				return
-			self._asientos_seleccionados = sorted(seleccion_temporal)
-			actualizar_resumen()
+			aplicar_seleccion()
+			ventana.destroy()
+
+		def cerrar():
+			if seleccion_temporal:
+				aplicar_seleccion()
 			ventana.destroy()
 
 		def cancelar():
@@ -258,6 +280,7 @@ class VentaUI(ttk.Frame):
 
 		refrescar_estado()
 		actualizar_resumen()
+		ventana.protocol("WM_DELETE_WINDOW", cerrar)
 		botonera = ttk.Frame(ventana, padding=(10, 0, 10, 10))
 		botonera.pack(fill="x")
 		tk.Label(botonera, textvariable=resumen).pack(anchor="w", pady=(0, 8))

@@ -85,20 +85,20 @@ class Venta:
 	@staticmethod
 	def _validar_asientos(asientos):
 		if not isinstance(asientos, (list, tuple)):
-			raise ValueError("asientos invalidos")
+			raise ValueError("Los asientos deben ser una lista o tupla de numeros enteros.")
 		if not asientos:
-			raise ValueError("asientos requeridos")
+			raise ValueError("Selecciona al menos un asiento.")
 		resultado = []
 		for asiento in asientos:
 			if not isinstance(asiento, int) or isinstance(asiento, bool):
-				raise ValueError("asientos invalidos")
+				raise ValueError("Los asientos deben ser numeros enteros.")
 			if asiento < 1:
-				raise ValueError("asientos invalidos")
+				raise ValueError("Los asientos deben ser mayores que cero.")
 			if asiento in resultado:
-				raise ValueError("asientos duplicados")
+				raise ValueError("No puedes repetir un asiento.")
 			resultado.append(asiento)
 		if len(resultado) > 10:
-			raise ValueError("no se puede comprar mas de 10 asientos")
+			raise ValueError("No se puede comprar mas de 10 asientos.")
 		return tuple(resultado)
 
 	@classmethod
