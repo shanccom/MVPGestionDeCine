@@ -1,1 +1,169 @@
-# Pruebas de venta
+from pathlib import Path
+import os
+import sys
+import tempfile
+import unittest
+
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.append(str(ROOT))
+
+from modulo_venta_entradas import ModuloVentaEntradas, VentaError
+
+
+class PruebasParticionEquivalenciaVentaEntradas(unittest.TestCase):
+	def setUp(self):
+		self.tempfile = tempfile.NamedTemporaryFile(delete=False)
+		self.tempfile.close()
+		self.modulo = ModuloVentaEntradas(self.tempfile.name)
+
+	def tearDown(self):
+		self.modulo.cerrar()
+		if os.path.exists(self.tempfile.name):
+			os.remove(self.tempfile.name)
+
+	def test_venta_valida_en_clase_equivalencia_valida(self):
+		venta = self.modulo.vender_entradas(
+			funcion_id=1,
+			capacidad_sala=100,
+			cantidad_entradas=5,
+			precio_unitario=15.0,
+		)
+
+		self.assertEqual(venta.funcion_id, 1)
+		self.assertEqual(venta.cantidad_entradas, 5)
+		self.assertEqual(venta.total, 75.0)
+		self.assertEqual(venta.estado, "ACTIVA")
+		self.assertEqual(self.modulo.entradas_disponibles(1, 100), 95)
+
+	def test_cantidad_cero_es_invalida(self):
+		with self.assertRaises(VentaError):
+			self.modulo.vender_entradas(
+				funcion_id=1,
+				capacidad_sala=100,
+				cantidad_entradas=0,
+				precio_unitario=15.0,
+			)
+
+	def test_cantidad_mayor_a_diez_es_invalida(self):
+		with self.assertRaises(VentaError):
+			self.modulo.vender_entradas(
+				funcion_id=1,
+				capacidad_sala=100,
+				cantidad_entradas=15,
+				precio_unitario=15.0,
+			)
+
+	def test_capacidad_fuera_de_rango_es_invalida(self):
+		with self.assertRaises(VentaError):
+			self.modulo.vender_entradas(
+				funcion_id=1,
+				capacidad_sala=10,
+				cantidad_entradas=1,
+				precio_unitario=15.0,
+			)
+
+		with self.assertRaises(VentaError):
+			self.modulo.vender_entradas(
+				funcion_id=1,
+				capacidad_sala=500,
+				cantidad_entradas=1,
+				precio_unitario=15.0,
+			)
+
+	def test_control_de_aforo_rechaza_venta_excedida(self):
+		self.modulo.vender_entradas(
+			funcion_id=1,
+			capacidad_sala=100,
+			cantidad_entradas=98,
+			precio_unitario=15.0,
+		)
+
+		with self.assertRaises(VentaError):
+			self.modulo.vender_entradas(
+				funcion_id=1,
+				capacidad_sala=100,
+				cantidad_entradas=5,
+				precio_unitario=15.0,
+			)
+
+	def test_cancelar_venta_libera_aforo(self):
+		venta = self.modulo.vender_entradas(
+			funcion_id=1,
+			capacidad_sala=100,
+			cantidad_entradas=40,
+			precio_unitario=15.0,
+		)
+		self.assertEqual(self.modulo.entradas_disponibles(1, 100), 60)
+
+		cancelada = self.modulo.cancelar_venta(venta.id)
+		self.assertEqual(cancelada.estado, "CANCELADA")
+		self.assertEqual(self.modulo.entradas_disponibles(1, 100), 100)
+
+	def test_listar_ventas_por_funcion(self):
+		self.modulo.vender_entradas(1, 100, 3, 15.0)
+		self.modulo.vender_entradas(2, 100, 4, 15.0)
+
+		ventas_funcion_1 = self.modulo.listar_ventas(1)
+		self.assertEqual(len(ventas_funcion_1), 1)
+		self.assertEqual(ventas_funcion_1[0].funcion_id, 1)
+
+
+class PruebasValoresLimiteVentaEntradas(unittest.TestCase):
+	def setUp(self):
+		self.tempfile = tempfile.NamedTemporaryFile(delete=False)
+		self.tempfile.close()
+		self.modulo = ModuloVentaEntradas(self.tempfile.name)
+
+	def tearDown(self):
+		self.modulo.cerrar()
+		if os.path.exists(self.tempfile.name):
+			os.remove(self.tempfile.name)
+
+	def test_limite_inferior_cantidad_menos_uno_es_invalido(self):
+		with self.assertRaises(VentaError):
+			self.modulo.vender_entradas(1, 100, 0, 15.0)
+
+	def test_limite_inferior_cantidad_uno_es_valido(self):
+		venta = self.modulo.vender_entradas(1, 100, 1, 15.0)
+		self.assertEqual(venta.cantidad_entradas, 1)
+		self.assertEqual(venta.total, 15.0)
+
+	def test_valores_cercanos_al_limite_superior_cantidad(self):
+		venta_nueve = self.modulo.vender_entradas(1, 100, 9, 15.0)
+		self.assertEqual(venta_nueve.cantidad_entradas, 9)
+
+		venta_diez = self.modulo.vender_entradas(2, 100, 10, 15.0)
+		self.assertEqual(venta_diez.cantidad_entradas, 10)
+
+		with self.assertRaises(VentaError):
+			self.modulo.vender_entradas(3, 100, 11, 15.0)
+
+	def test_limite_inferior_capacidad_diecinueve_es_invalido(self):
+		with self.assertRaises(VentaError):
+			self.modulo.vender_entradas(1, 19, 1, 15.0)
+
+	def test_limite_inferior_capacidad_veinte_es_valido(self):
+		venta = self.modulo.vender_entradas(1, 20, 1, 15.0)
+		self.assertEqual(venta.cantidad_entradas, 1)
+
+	def test_valores_cercanos_al_limite_superior_capacidad(self):
+		venta_299 = self.modulo.vender_entradas(1, 299, 10, 15.0)
+		self.assertEqual(venta_299.cantidad_entradas, 10)
+
+		venta_300 = self.modulo.vender_entradas(2, 300, 10, 15.0)
+		self.assertEqual(venta_300.cantidad_entradas, 10)
+
+		with self.assertRaises(VentaError):
+			self.modulo.vender_entradas(3, 301, 1, 15.0)
+
+	def test_aforo_real_en_limite(self):
+		self.modulo.vender_entradas(1, 20, 10, 15.0)
+		self.modulo.vender_entradas(1, 20, 10, 15.0)
+
+		with self.assertRaises(VentaError):
+			self.modulo.vender_entradas(1, 20, 1, 15.0)
+
+
+if __name__ == "__main__":
+	unittest.main()
