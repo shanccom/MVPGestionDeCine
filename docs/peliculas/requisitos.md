@@ -15,7 +15,6 @@ Permitir el registro, consulta, actualizacion y baja de peliculas con datos cons
 ## Requisitos funcionales
 1. Registrar una pelicula con los campos definidos y asignar id_pelicula automaticamente.
 2. Consultar el listado de peliculas con paginacion y orden por titulo.
-3. Buscar peliculas por titulo (coincidencia parcial) y filtrar por genero.
 4. Visualizar el detalle de una pelicula.
 5. Editar una pelicula existente.
 6. Eliminar una pelicula cuando no tenga funciones asociadas.
@@ -23,10 +22,7 @@ Permitir el registro, consulta, actualizacion y baja de peliculas con datos cons
 
 ## Requisitos no funcionales
 1. Rendimiento: el listado y filtros deben responder en <= 2 s con hasta 10,000 peliculas.
-2. Seguridad: solo usuarios con rol administrador o encargado pueden crear, editar o eliminar peliculas.
 3. Usabilidad: mensajes de validacion deben indicar el campo y la causa del error.
-4. Disponibilidad: el modulo debe estar disponible al menos 99.5% del tiempo mensual.
-5. Auditoria: registrar fecha, usuario y accion para alta, edicion y eliminacion.
 
 ## Reglas de negocio
 1. id_pelicula se asigna automaticamente y no puede ser modificado.
