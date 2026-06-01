@@ -1,3 +1,77 @@
 {
-  "comentario": "Datos de ventas"
+  "comentario": "Datos de ventas",
+  "items": [
+    {
+      "id_venta": 1,
+      "pelicula": "Hola",
+      "funcion_id": 1,
+      "asientos": [
+        12
+      ],
+      "cantidad_entradas": 1,
+      "total": 15.0,
+      "fecha_venta": "2026-05-31T11:27:04",
+      "estado": "ACTIVA"
+    },
+    {
+      "id_venta": 2,
+      "pelicula": "Hola",
+      "funcion_id": 1,
+      "asientos": [
+        14
+      ],
+      "cantidad_entradas": 1,
+      "total": 15.0,
+      "fecha_venta": "2026-05-31T11:29:03",
+      "estado": "ACTIVA"
+    },
+    {
+      "id_venta": 3,
+      "pelicula": "Hola 123",
+      "funcion_id": 1,
+      "asientos": [
+        2
+      ],
+      "cantidad_entradas": 1,
+      "total": 15.0,
+      "fecha_venta": "2026-05-31T11:36:56",
+      "estado": "ACTIVA"
+    },
+    {
+      "id_venta": 4,
+      "pelicula": "Toy Story",
+      "funcion_id": 2,
+      "asientos": [
+        7
+      ],
+      "cantidad_entradas": 1,
+      "total": 15.0,
+      "fecha_venta": "2026-05-31T11:39:21",
+      "estado": "ACTIVA"
+    },
+    {
+      "id_venta": 5,
+      "pelicula": "Toy Story",
+      "funcion_id": 2,
+      "asientos": [
+        18
+      ],
+      "cantidad_entradas": 1,
+      "total": 15.0,
+      "fecha_venta": "2026-05-31T11:48:14",
+      "estado": "CANCELADA"
+    },
+    {
+      "id_venta": 7,
+      "pelicula": "Hola 123",
+      "funcion_id": 1,
+      "asientos": [
+        6
+      ],
+      "cantidad_entradas": 1,
+      "total": 15.0,
+      "fecha_venta": "2026-05-31T12:08:11",
+      "estado": "ACTIVA"
+    }
+  ]
 }
