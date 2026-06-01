@@ -2,14 +2,17 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 
 from models.pelicula import Pelicula
+from services.pelicula_service import PeliculaService
 from storage.peliculas.pelicula_repository import PeliculaRepository
 
-
 class PeliculaUI(ttk.Frame):
-    def __init__(self, master=None, repository=None):
+    def __init__(self, master=None, service=None, repository=None):
         self._root = master or tk.Tk()
         super().__init__(self._root)
-        self._repo = repository or PeliculaRepository()
+        if service is None:
+            repo = repository or PeliculaRepository()
+            service = PeliculaService(repository=repo)
+        self._service = service
         self._titulo_seleccionado = None
         self._construir_ui()
         self._cargar_peliculas()
@@ -96,12 +99,11 @@ class PeliculaUI(ttk.Frame):
 
     def _registrar(self):
         try:
-            pelicula = Pelicula(
+            pelicula = self._service.registrar(
                 titulo=self._titulo_var.get(),
                 genero=self._genero_var.get(),
                 duracion=self._leer_duracion(),
             )
-            self._repo.guardar(pelicula)
             self._cargar_peliculas()
             self._limpiar()
             self._id_var.set(str(pelicula.id_pelicula))
@@ -114,7 +116,7 @@ class PeliculaUI(ttk.Frame):
             messagebox.showerror("Error", "Seleccione una pelicula para editar.")
             return
         try:
-            pelicula = self._repo.actualizar(
+            pelicula = self._service.actualizar(
                 self._titulo_seleccionado,
                 titulo=self._titulo_var.get(),
                 genero=self._genero_var.get(),
@@ -134,7 +136,7 @@ class PeliculaUI(ttk.Frame):
         if not messagebox.askyesno("Confirmar", "Desea eliminar la pelicula seleccionada?"):
             return
         try:
-            self._repo.eliminar(self._titulo_seleccionado)
+            self._service.eliminar(self._titulo_seleccionado)
             self._cargar_peliculas()
             self._limpiar()
             messagebox.showinfo("Exito", "Pelicula eliminada.")
@@ -144,7 +146,7 @@ class PeliculaUI(ttk.Frame):
     def _cargar_peliculas(self):
         for item in self._tabla.get_children():
             self._tabla.delete(item)
-        for pelicula in self._repo.listar():
+        for pelicula in self._service.listar():
             self._tabla.insert(
                 "", "end",
                 values=(
@@ -176,11 +178,9 @@ class PeliculaUI(ttk.Frame):
         self._titulo_seleccionado = None
         self._tabla.selection_remove(self._tabla.selection())
 
-
 def lanzar_pelicula_ui():
     ui = PeliculaUI()
     ui._root.mainloop()
-
 
 if __name__ == "__main__":
     lanzar_pelicula_ui()
