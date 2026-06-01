@@ -29,11 +29,6 @@ class PeliculaUI(ttk.Frame):
         form = ttk.LabelFrame(self, text="Datos de pelicula")
         form.pack(fill="x", padx=5, pady=5)
 
-        ttk.Label(form, text="ID").grid(row=0, column=0, sticky="w", padx=5, pady=5)
-        ttk.Entry(form, textvariable=self._id_var, width=40, state="readonly").grid(
-            row=0, column=1, sticky="w", padx=5, pady=5
-        )
-
         ttk.Label(form, text="Titulo").grid(row=1, column=0, sticky="w", padx=5, pady=5)
         ttk.Entry(form, textvariable=self._titulo_var, width=40).grid(
             row=1, column=1, sticky="w", padx=5, pady=5
