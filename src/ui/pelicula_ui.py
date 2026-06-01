@@ -61,9 +61,6 @@ class PeliculaUI(ttk.Frame):
         ttk.Button(acciones, text="Eliminar", command=self._eliminar).pack(
             side="left", padx=5
         )
-        ttk.Button(acciones, text="Listar", command=self._cargar_peliculas).pack(
-            side="left", padx=5
-        )
         ttk.Button(acciones, text="Limpiar", command=self._limpiar).pack(
             side="left", padx=5
         )
