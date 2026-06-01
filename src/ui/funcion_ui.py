@@ -2,14 +2,29 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 
 from services.funcion_service import FuncionService
+from storage.peliculas.pelicula_repository import PeliculaRepository
+from storage.salas.sala_repository import SalaRepository
 
 
 class FuncionUI(ttk.Frame):
-    def __init__(self, master=None, service=None):
+    def __init__(
+        self,
+        master=None,
+        service=None,
+        pelicula_repository=None,
+        sala_repository=None,
+    ):
         self._root = master or tk.Tk()
         super().__init__(self._root)
         self._service = service or FuncionService()
+        self._pelicula_repo = pelicula_repository or PeliculaRepository()
+        self._sala_repo = sala_repository or SalaRepository()
         self._id_seleccionado = None
+        self._peliculas_por_opcion = {}
+        self._opcion_pelicula_por_id = {}
+        self._salas_por_opcion = {}
+        self._opcion_sala_por_id = {}
+        self._cargar_catalogos()
         self._construir_ui()
         self._cargar_funciones()
 
@@ -33,12 +48,26 @@ class FuncionUI(ttk.Frame):
         )
 
         ttk.Label(form, text="Pelicula").grid(row=1, column=0, sticky="w", padx=5, pady=5)
-        ttk.Entry(form, textvariable=self._pelicula_var, width=40).grid(
+        self._pelicula_combo = ttk.Combobox(
+            form,
+            textvariable=self._pelicula_var,
+            values=list(self._peliculas_por_opcion.keys()),
+            state="readonly",
+            width=37,
+        )
+        self._pelicula_combo.grid(
             row=1, column=1, sticky="w", padx=5, pady=5
         )
 
         ttk.Label(form, text="Sala").grid(row=2, column=0, sticky="w", padx=5, pady=5)
-        ttk.Entry(form, textvariable=self._sala_var, width=40).grid(
+        self._sala_combo = ttk.Combobox(
+            form,
+            textvariable=self._sala_var,
+            values=list(self._salas_por_opcion.keys()),
+            state="readonly",
+            width=37,
+        )
+        self._sala_combo.grid(
             row=2, column=1, sticky="w", padx=5, pady=5
         )
 
@@ -46,11 +75,13 @@ class FuncionUI(ttk.Frame):
         ttk.Entry(form, textvariable=self._fecha_var, width=40).grid(
             row=3, column=1, sticky="w", padx=5, pady=5
         )
+        ttk.Label(form, text="yyyy-mm-dd").grid(row=3, column=2, sticky="w", padx=5, pady=5)
 
         ttk.Label(form, text="Hora").grid(row=4, column=0, sticky="w", padx=5, pady=5)
         ttk.Entry(form, textvariable=self._hora_var, width=40).grid(
             row=4, column=1, sticky="w", padx=5, pady=5
         )
+        ttk.Label(form, text="hh:mm").grid(row=4, column=2, sticky="w", padx=5, pady=5)
 
         ttk.Label(form, text="Precio").grid(row=5, column=0, sticky="w", padx=5, pady=5)
         ttk.Entry(form, textvariable=self._precio_var, width=40).grid(
@@ -78,8 +109,8 @@ class FuncionUI(ttk.Frame):
         self._tabla.heading("hora", text="Hora")
         self._tabla.heading("precio", text="Precio")
         self._tabla.column("id_funcion", width=70, anchor="center")
-        self._tabla.column("pelicula", width=100, anchor="center")
-        self._tabla.column("sala", width=80, anchor="center")
+        self._tabla.column("pelicula", width=180)
+        self._tabla.column("sala", width=140)
         self._tabla.column("fecha", width=120, anchor="center")
         self._tabla.column("hora", width=90, anchor="center")
         self._tabla.column("precio", width=90, anchor="center")
@@ -91,17 +122,31 @@ class FuncionUI(ttk.Frame):
 
         self._tabla.bind("<<TreeviewSelect>>", self._seleccionar_fila)
 
+    def _cargar_catalogos(self):
+        peliculas = self._pelicula_repo.listar()
+        salas = self._sala_repo.listar()
+
+        for pelicula in peliculas:
+            opcion = pelicula.titulo
+            self._peliculas_por_opcion[opcion] = pelicula.id_pelicula
+            self._opcion_pelicula_por_id[pelicula.id_pelicula] = opcion
+
+        for sala in salas:
+            opcion = f"Sala {sala.numero} - capacidad {sala.capacidad}"
+            self._salas_por_opcion[opcion] = sala.id_sala
+            self._opcion_sala_por_id[sala.id_sala] = opcion
+
     def _leer_pelicula(self):
-        try:
-            return int(self._pelicula_var.get())
-        except ValueError:
+        pelicula = self._peliculas_por_opcion.get(self._pelicula_var.get())
+        if pelicula is None:
             raise ValueError("pelicula invalida")
+        return pelicula
 
     def _leer_sala(self):
-        try:
-            return int(self._sala_var.get())
-        except ValueError:
+        sala = self._salas_por_opcion.get(self._sala_var.get())
+        if sala is None:
             raise ValueError("sala invalida")
+        return sala
 
     def _leer_precio(self):
         try:
@@ -168,8 +213,8 @@ class FuncionUI(ttk.Frame):
                 "end",
                 values=(
                     funcion.id_funcion,
-                    funcion.pelicula,
-                    funcion.sala,
+                    self._opcion_pelicula_por_id.get(funcion.pelicula, funcion.pelicula),
+                    self._opcion_sala_por_id.get(funcion.sala, funcion.sala),
                     funcion.fecha,
                     funcion.hora,
                     f"{funcion.precio:.2f}",
@@ -183,9 +228,12 @@ class FuncionUI(ttk.Frame):
         valores = self._tabla.item(seleccion[0], "values")
         if not valores:
             return
+        funcion = self._service.buscar_por_id(int(valores[0]))
         self._id_var.set(valores[0])
-        self._pelicula_var.set(valores[1])
-        self._sala_var.set(valores[2])
+        self._pelicula_var.set(
+            self._opcion_pelicula_por_id.get(funcion.pelicula, "")
+        )
+        self._sala_var.set(self._opcion_sala_por_id.get(funcion.sala, ""))
         self._fecha_var.set(valores[3])
         self._hora_var.set(valores[4])
         self._precio_var.set(valores[5])

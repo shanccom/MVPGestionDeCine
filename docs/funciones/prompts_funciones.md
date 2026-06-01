@@ -42,3 +42,86 @@ El modulo Funciones permite registrar, listar, actualizar, buscar y eliminar fun
 3. El repository asigna el siguiente `id_funcion` si corresponde.
 4. La funcion se convierte a diccionario.
 5. El diccionario se guarda dentro de `items` en el archivo JSON.
+
+
+# Correcciones de interfaz
+
+Necesito realizar algunos ajustes en la interfaz del módulo **Funciones**.
+
+Analiza cómo se muestran actualmente los datos y aplica únicamente las siguientes correcciones:
+
+## 1. Selección de película
+
+Actualmente se utiliza el ID de la película.
+
+Modificar la interfaz para que el usuario pueda seleccionar una película desde una lista de películas existentes.
+
+Requisitos:
+
+* Cargar las películas registradas en el sistema.
+* Mostrar el nombre/título de la película al usuario.
+* Mantener internamente la referencia que utiliza la arquitectura actual del proyecto.
+* No solicitar que el usuario escriba manualmente el ID.
+
+---
+
+## 2. Selección de sala
+
+Actualmente se utiliza el ID de la sala.
+
+Modificar la interfaz para que el usuario pueda seleccionar una sala desde una lista de salas existentes.
+
+Requisitos:
+
+* Cargar las salas registradas en el sistema.
+* Mostrar un nombre descriptivo de la sala.
+* Mantener internamente la referencia utilizada por el sistema.
+* No solicitar que el usuario escriba manualmente el ID.
+
+---
+
+## 3. Campo fecha
+
+Mejorar la experiencia de ingreso de fecha.
+
+Requisitos:
+
+* Mostrar una ayuda visual o placeholder con el formato esperado.
+* Utilizar el formato:
+
+yyyy-mm-dd
+
+Ejemplo:
+
+2026-07-15
+
+No modificar la lógica de almacenamiento existente.
+
+---
+
+## 4. Campo hora
+
+Mejorar la experiencia de ingreso de hora.
+
+Requisitos:
+
+* Mostrar una ayuda visual o placeholder con el formato esperado.
+* Utilizar el formato:
+
+hh:mm
+
+Ejemplo:
+
+19:30
+
+No modificar la lógica de almacenamiento existente.
+
+---
+
+## Restricciones
+
+1. No modificar la arquitectura del módulo.
+2. No modificar repositories ni modelos salvo que sea estrictamente necesario.
+3. Limitar los cambios principalmente a la capa de interfaz.
+4. Mantener el mismo estilo visual utilizado por los demás módulos.
+5. No agregar nuevas funcionalidades distintas a las solicitadas.
