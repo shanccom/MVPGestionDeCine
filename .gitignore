@@ -1,0 +1,21 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Archivos de configuración de IDEs
+.vscode/
+.idea/
+
+# Archivos de pruebas y cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
