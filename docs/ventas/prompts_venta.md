@@ -4,19 +4,6 @@
 
 Este informe recopila las mejoras, correcciones y resultados obtenidos en el modulo de ventas del sistema de gestion de cine. El enfoque principal estuvo en estabilizar el registro de transacciones, reforzar las validaciones de datos, mejorar la integracion con la interfaz y ordenar el flujo completo para que el sistema responda de forma mas clara y confiable.
 
-## Resumen general
-
-| Prompt | Objetivo principal | Resultado obtenido | Pruebas | Interfaz |
-| --- | --- | --- | --- | --- |
-| Prompt 01 | Definir la logica base del modulo de ventas y estabilizar el registro de transacciones | Se ajusta la logica principal del modulo de ventas para que el flujo de registro quede mas estable y ordenado | 24 passed, 0 failed in 0.18s | La interfaz queda preparada para consumir una logica mas limpia y sin fallos al registrar ventas |
-| Prompt 02 | Corregir errores en la validacion de datos al registrar una venta | Se mejoran las validaciones del registro de ventas y se corrigen errores en la conexion de los datos principales | 22 passed, 2 failed in 0.21s | La ventana de ventas responde mejor al ingreso de datos y reduce errores al momento de registrar |
-| Prompt 03 | Diseñar una interfaz grafica mas clara para el modulo de ventas | Se propone una interfaz mas clara, ordenada y funcional para el registro y visualizacion de ventas | 26 passed, 0 failed in 0.19s | Se mejora la distribucion de componentes, el listado de ventas y la interaccion general con la ventana |
-| Prompt 04 | Revisar el envio de datos desde la interfaz hacia la logica del sistema | Se corrige el flujo de envio de datos desde la interfaz hacia la logica del modulo | 20 passed, 4 failed in 0.23s | La captura de informacion queda mas controlada y con mensajes mas claros cuando ocurre un error |
-| Prompt 05 | Mejorar la experiencia de uso de la pantalla de ventas | Se ajustan los controles principales de la interfaz para que las acciones de ventas sean mas intuitivas | 25 passed, 1 failed in 0.20s | La pantalla responde mejor al uso de botones, formularios y mensajes de confirmacion |
-| Prompt 06 | Fortalecer la logica de seleccion de funcion y calculo del total | Se refuerza la logica del calculo del total y la seleccion de funciones para evitar errores comunes | 23 passed, 3 failed in 0.22s | El total se actualiza con mas precision y la ventana falla menos cuando faltan datos |
-| Prompt 07 | Revisar la integracion entre la interfaz y la logica del modulo ventas | Se mejora la integracion entre la ventana de ventas, la logica de negocio y el almacenamiento | 24 passed, 0 failed in 0.18s | La interfaz queda mejor conectada con los datos y reduce los errores al interactuar con el sistema |
-| Prompt 08 | Redactar una version corregida del modulo ventas enfocada en interfaz y depuracion | Se obtiene una version mas clara y corregida del modulo ventas, enfocada en validacion, interfaz y manejo de errores | 28 passed, 0 failed in 0.25s | La ventana principal de ventas queda mas usable, con validaciones y mensajes mejor organizados |
-
 ## Desarrollo por prompt
 
 ### Prompt 01
